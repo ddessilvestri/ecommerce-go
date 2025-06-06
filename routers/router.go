@@ -1,4 +1,4 @@
-package handlers
+package routers
 
 import (
 	"fmt"
@@ -7,10 +7,10 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/ddessilvestri/ecommerce-go/auth"
-	"github.com/ddessilvestri/ecommerce-go/routers"
+	"github.com/ddessilvestri/ecommerce-go/handlers"
 )
 
-func Handlers(path string, method string, body string, header map[string]string, request events.APIGatewayV2HTTPRequest) (int, string) {
+func Router(path string, method string, body string, header map[string]string, request events.APIGatewayV2HTTPRequest) (int, string) {
 	fmt.Println("Processing " + path + " > " + method)
 
 	id := request.PathParameters["id"]
@@ -123,7 +123,7 @@ func ProcessCategory(body string, path string, method string, user string, id in
 
 	switch method {
 	case "POST":
-		return routers.InsertCategory(body, user)
+		return handlers.PostCategory(body, user)
 	}
 
 	return 400, "Invalid Method"

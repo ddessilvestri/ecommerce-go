@@ -1,4 +1,4 @@
-package routers
+package handlers
 
 import (
 	"encoding/json"
@@ -8,7 +8,7 @@ import (
 	"github.com/ddessilvestri/ecommerce-go/models"
 )
 
-func InsertCategory(body string, User string) (int, string) {
+func PostCategory(body string, User string) (int, string) {
 	var t models.Category
 	err := json.Unmarshal([]byte(body), &t)
 	if err != nil {
