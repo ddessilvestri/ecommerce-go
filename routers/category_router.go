@@ -7,7 +7,7 @@ import (
 type CategoryRouter struct{}
 
 func (router *CategoryRouter) Post(body string, user string) (int, string) {
-	return handlers.PostCategory(body, user)
+	return handlers.CreateCategory(body, user)
 }
 
 func (router *CategoryRouter) Get(user string, id string, query map[string]string) (int, string) {

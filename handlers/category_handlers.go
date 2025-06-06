@@ -8,7 +8,7 @@ import (
 	"github.com/ddessilvestri/ecommerce-go/models"
 )
 
-func PostCategory(body string, User string) (int, string) {
+func CreateCategory(body string, User string) (int, string) {
 	var t models.Category
 	err := json.Unmarshal([]byte(body), &t)
 	if err != nil {
