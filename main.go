@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"strings"
 
 	"os"
 
@@ -24,16 +23,10 @@ func LambdaExec(ctx context.Context, request events.APIGatewayV2HTTPRequest) (*e
 		panic("Paramater Error. Must send 'SecretName','UrlPrefix'")
 	}
 	var res *events.APIGatewayProxyResponse
-	path := strings.Replace(request.RawPath, os.Getenv("UrlPrefix"), "", -1)
-	method := request.RequestContext.HTTP.Method
-	body := request.Body
-	header := request.Headers
 
 	db.ReadSecret()
 
-	//
-	// status, message := handlers.Handlers(path, method, body, header, request)
-	status, message := routers.Router(path, method, body, header, request)
+	status, message := routers.Router(request, os.Getenv("UrlPrefix"))
 
 	headerResp := map[string]string{
 		"Content-Type": "application/json",

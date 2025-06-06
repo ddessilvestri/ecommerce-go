@@ -8,7 +8,13 @@ import (
 	"github.com/ddessilvestri/ecommerce-go/auth"
 )
 
-func Router(path string, method string, body string, header map[string]string, request events.APIGatewayV2HTTPRequest) (int, string) {
+func Router(request events.APIGatewayV2HTTPRequest, urlPrefix string) (int, string) {
+
+	path := strings.Replace(request.RawPath, urlPrefix, "", -1)
+	method := request.RequestContext.HTTP.Method
+	body := request.Body
+	header := request.Headers
+
 	fmt.Println("Processing " + path + " > " + method)
 
 	id := request.PathParameters["id"]
@@ -24,7 +30,19 @@ func Router(path string, method string, body string, header map[string]string, r
 	if err != nil {
 		return 400, "unable to get router " + err.Error()
 	}
-	return entityRouter.Route(body, path, method, user, id, request)
+
+	switch method {
+	case GET:
+		return entityRouter.Get(user, id, request.QueryStringParameters)
+	case PUT:
+		return entityRouter.Put(body, user, id)
+	case POST:
+		return entityRouter.Post(body, user)
+	case DELETE:
+		return entityRouter.Delete(user, id)
+	default:
+		return 405, "Method not allowed"
+	}
 
 }
 

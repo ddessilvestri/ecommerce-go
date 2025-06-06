@@ -1,7 +1,8 @@
 package routers
 
-import "github.com/aws/aws-lambda-go/events"
-
 type EntityRouter interface {
-	Route(body string, path string, method string, user string, id string, request events.APIGatewayV2HTTPRequest) (int, string)
+	Get(user string, id string, query map[string]string) (int, string)
+	Post(body string, user string) (int, string)
+	Put(body string, user string, id string) (int, string)
+	Delete(user string, id string) (int, string)
 }
