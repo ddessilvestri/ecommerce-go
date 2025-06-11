@@ -27,5 +27,20 @@ func (s *Service) CreateCategory(c models.Category) (int64, error) {
 	return s.repo.InsertCategory(c)
 }
 
+// CreateCategory performs validation and delegates to the repository.
+func (s *Service) UpdateCategory(c models.Category) error {
+	// Simple validation (can be more elaborate in real use cases)
+	if c.CategName == "" || c.CategPath == "" {
+		return ErrInvalidCategory
+	}
+	if c.CategID < 1 {
+		return ErrInvalidCategoryId
+	}
+	// Business logic: could include auditing, formatting, etc.
+	return s.repo.UpdateCategory(c)
+
+}
+
 // ErrInvalidCategory represents a validation error.
 var ErrInvalidCategory = errors.New("invalid category: name and path are required")
+var ErrInvalidCategoryId = errors.New("invalid category Id: Id < 1 ")

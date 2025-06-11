@@ -44,3 +44,26 @@ func (r *repositorySQL) InsertCategory(c models.Category) (int64, error) {
 	// Return the last inserted ID
 	return result.LastInsertId()
 }
+
+func (r *repositorySQL) UpdateCategory(c models.Category) error {
+	// Build a safe SQL UPDATE query using the squirrel package
+	query, args, err := squirrel.
+		Update("category").
+		Set("Categ_Name", c.CategName).
+		Set("Categ_Path", c.CategPath).
+		Where(squirrel.Eq{"Categ_Id": c.CategID}).
+		ToSql()
+
+	if err != nil {
+		return err
+	}
+
+	// Execute the query with the generated SQL and arguments
+	_, err = r.db.Exec(query, args...)
+	if err != nil {
+		return err
+	}
+
+	// Return the updated ID
+	return nil
+}

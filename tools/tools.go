@@ -2,6 +2,7 @@ package tools
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -22,4 +23,10 @@ func CreateAPIResponse(status int, body string) *events.APIGatewayProxyResponse 
 			"Content-Type": "application/json",
 		},
 	}
+}
+
+func EscapeString(t string) string {
+	desc := strings.ReplaceAll(t, "'", "")
+	desc = strings.ReplaceAll(desc, "\"", "")
+	return desc
 }
