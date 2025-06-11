@@ -7,6 +7,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/ddessilvestri/ecommerce-go/models"
+	"github.com/ddessilvestri/ecommerce-go/tools"
 )
 
 // Handler struct wires the service (depends on Service)
@@ -20,32 +21,22 @@ func NewCategoryHandler(service *Service) *Handler {
 }
 
 // Post handles the HTTP POST request to create a category
-func (h *Handler) Post(body string, user string) (*events.APIGatewayProxyResponse, error) {
+func (h *Handler) Post(request events.APIGatewayV2HTTPRequest) (*events.APIGatewayProxyResponse, error) {
 	var c models.Category
+	body := request.Body
 
 	// 1. Try to parse the incoming JSON
 	err := json.Unmarshal([]byte(body), &c)
 	if err != nil {
-		return apiResponse(http.StatusBadRequest, "Invalid JSON body: "+err.Error()), nil
+		return tools.CreateAPIResponse(http.StatusBadRequest, "Invalid JSON body: "+err.Error()), nil
 	}
 
 	// 2. Call service to create category
 	id, err := h.service.CreateCategory(c)
 	if err != nil {
-		return apiResponse(http.StatusBadRequest, "Error: "+err.Error()), nil
+		return tools.CreateAPIResponse(http.StatusBadRequest, "Error : "+err.Error()), nil
 	}
 
 	// 3. Return success response
-	return apiResponse(http.StatusOK, fmt.Sprintf(`{"CategID": %d}`, id)), nil
-}
-
-// Utility function to standardize API responses
-func apiResponse(status int, body string) *events.APIGatewayProxyResponse {
-	return &events.APIGatewayProxyResponse{
-		StatusCode: status,
-		Body:       body,
-		Headers: map[string]string{
-			"Content-Type": "application/json",
-		},
-	}
+	return tools.CreateAPIResponse(http.StatusOK, fmt.Sprintf(`{"CategID": %d}`, id)), nil
 }

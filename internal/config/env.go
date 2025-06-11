@@ -1,7 +1,6 @@
 package config
 
 import (
-	"errors"
 	"os"
 )
 
@@ -9,16 +8,6 @@ type EnvConfig struct {
 	SecretName string
 	UrlPrefix  string
 	DBName     string
-}
-
-// ValidateEnvVars ensures that required environment variables are set
-func ValidateEnvVars(vars ...string) error {
-	for _, v := range vars {
-		if _, exists := os.LookupEnv(v); !exists {
-			return errors.New("missing required env var: " + v)
-		}
-	}
-	return nil
 }
 
 // LoadConfig loads all configuration values from environment variables

@@ -3,11 +3,13 @@ package routers
 import (
 	"database/sql"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/ddessilvestri/ecommerce-go/auth"
 	"github.com/ddessilvestri/ecommerce-go/internal/category"
+	"github.com/ddessilvestri/ecommerce-go/tools"
 )
 
 // HTTP method constants
@@ -23,10 +25,7 @@ func Router(request events.APIGatewayV2HTTPRequest, urlPrefix string, db *sql.DB
 	// Extract path & method
 	path := strings.Replace(request.RawPath, urlPrefix, "", 1)
 	method := request.RequestContext.HTTP.Method
-	id := request.PathParameters["id"]
-	body := request.Body
 	header := request.Headers
-	query := request.QueryStringParameters
 
 	// Extract main segment (e.g. /category/123 => category)
 	firstSegment := getFirstPathSegment(path)
@@ -34,7 +33,7 @@ func Router(request events.APIGatewayV2HTTPRequest, urlPrefix string, db *sql.DB
 	// Find the corresponding entity router (e.g., category.Router)
 	entityRouter, err := CreateRouter(firstSegment, db)
 	if err != nil {
-		return jsonResponse(400, "Unable to route request: "+err.Error())
+		return tools.CreateAPIResponse(http.StatusBadRequest, "Unable to route request: "+err.Error())
 	}
 
 	// Authenticate
@@ -49,15 +48,16 @@ func Router(request events.APIGatewayV2HTTPRequest, urlPrefix string, db *sql.DB
 	// Route to correct handler based on HTTP method
 	switch method {
 	case GET:
-		return entityRouter.Get(user, id, query)
+		return entityRouter.Get(request)
 	case POST:
-		return entityRouter.Post(body, user)
+		return entityRouter.Post(request)
 	case PUT:
-		return entityRouter.Put(body, user, id)
+		return entityRouter.Put(request)
 	case DELETE:
-		return entityRouter.Delete(user, id)
+		return entityRouter.Delete(request)
 	default:
-		return jsonResponse(405, "Method not allowed")
+		return tools.CreateAPIResponse(http.StatusMethodNotAllowed, " Method not allowed")
+
 	}
 }
 

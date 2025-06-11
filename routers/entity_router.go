@@ -4,8 +4,8 @@ package routers
 import "github.com/aws/aws-lambda-go/events"
 
 type EntityRouter interface {
-	Get(user, id string, query map[string]string) *events.APIGatewayProxyResponse
-	Post(body, user string) *events.APIGatewayProxyResponse
-	Put(body, user, id string) *events.APIGatewayProxyResponse
-	Delete(user, id string) *events.APIGatewayProxyResponse
+	Get(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse
+	Post(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse
+	Put(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse
+	Delete(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse
 }

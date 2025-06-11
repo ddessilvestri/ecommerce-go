@@ -21,20 +21,20 @@ func NewCategoryRouter(db *sql.DB) *Router {
 
 // Implements the EntityRouter interface
 
-func (r *Router) Post(body string, user string) *events.APIGatewayProxyResponse {
-	resp, _ := r.handler.Post(body, user)
+func (r *Router) Post(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse {
+	resp, _ := r.handler.Post(request)
 	return resp
 }
 
 // Future implementations (stubs for now)
-func (r *Router) Get(user, id string, query map[string]string) *events.APIGatewayProxyResponse {
+func (r *Router) Get(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse {
 	return nil
 }
 
-func (r *Router) Put(body, user, id string) *events.APIGatewayProxyResponse {
+func (r *Router) Put(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse {
 	return nil
 }
 
-func (r *Router) Delete(user, id string) *events.APIGatewayProxyResponse {
+func (r *Router) Delete(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse {
 	return nil
 }
