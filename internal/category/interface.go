@@ -7,4 +7,5 @@ type Storage interface {
 	UpdateCategory(c models.Category) error
 	DeleteCategory(id int) error
 	GetCategory(id int) (models.Category, error)
+	GetCategories() ([]models.Category, error)
 }

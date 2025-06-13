@@ -52,7 +52,7 @@ func (s *Service) DeleteCategory(id int) error {
 
 }
 
-// CreateCategory performs validation and delegates to the repository.
+// GetCategory by id performs validation and delegates to the repository.
 func (s *Service) GetCategory(id int) (models.Category, error) {
 
 	// Simple validation (can be more elaborate in real use cases)
@@ -63,6 +63,13 @@ func (s *Service) GetCategory(id int) (models.Category, error) {
 	// Business logic: could include auditing, formatting, etc.
 
 	return s.repo.GetCategory(id)
+
+}
+
+// GetCategory by id performs validation and delegates to the repository.
+func (s *Service) GetCategories() ([]models.Category, error) {
+
+	return s.repo.GetCategories()
 
 }
 
