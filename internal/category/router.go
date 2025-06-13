@@ -37,5 +37,6 @@ func (r *Router) Put(request events.APIGatewayV2HTTPRequest) *events.APIGatewayP
 }
 
 func (r *Router) Delete(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse {
-	return nil
+	resp, _ := r.handler.Delete(request)
+	return resp
 }

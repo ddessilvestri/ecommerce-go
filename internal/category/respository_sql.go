@@ -67,3 +67,24 @@ func (r *repositorySQL) UpdateCategory(c models.Category) error {
 	// Return the updated ID
 	return nil
 }
+
+func (r *repositorySQL) DeleteCategory(id int) error {
+	// Build a safe SQL UPDATE query using the squirrel package
+	query, args, err := squirrel.
+		Delete("category").
+		Where(squirrel.Eq{"Categ_Id": id}).
+		ToSql()
+
+	if err != nil {
+		return err
+	}
+
+	// Execute the query with the generated SQL and arguments
+	_, err = r.db.Exec(query, args...)
+	if err != nil {
+		return err
+	}
+
+	// Return the updated ID
+	return nil
+}
