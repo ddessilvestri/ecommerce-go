@@ -88,3 +88,30 @@ func (r *repositorySQL) DeleteCategory(id int) error {
 	// Return the updated ID
 	return nil
 }
+
+func (r *repositorySQL) GetCategory(id int) (models.Category, error) {
+	// Build a safe SQL UPDATE query using the squirrel package
+	query, args, err := squirrel.
+		Select("Categ_Name", "Categ_Path").
+		From("category").
+		Where(squirrel.Eq{"Categ_Id": id}).
+		ToSql()
+
+	if err != nil {
+		return models.Category{}, err
+	}
+
+	var name, path string
+	// Execute the query with the generated SQL and arguments
+	row := r.db.QueryRow(query, args...)
+	if err := row.Scan(&name, &path); err != nil {
+		return models.Category{}, err
+	}
+
+	return models.Category{
+		CategID:   id,
+		CategName: name,
+		CategPath: path,
+	}, nil
+
+}

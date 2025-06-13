@@ -91,3 +91,28 @@ func (h *Handler) Delete(request events.APIGatewayV2HTTPRequest) (*events.APIGat
 	// 3. Return success response
 	return tools.CreateAPIResponse(http.StatusOK, fmt.Sprintf(`{"Deleted CategID": %d}`, idn)), nil
 }
+
+// Post handles the HTTP DELETE request to delete a category
+func (h *Handler) Get(request events.APIGatewayV2HTTPRequest) (*events.APIGatewayProxyResponse, error) {
+
+	// 1. Try to parse the incoming id
+	id := request.PathParameters["id"]
+	idn, err := strconv.Atoi(id)
+	if err != nil {
+		return tools.CreateAPIResponse(http.StatusBadRequest, "Invalid CategoryId: "+err.Error()), nil
+	}
+
+	// 2. Call service to update category
+	c, err := h.service.GetCategory(idn)
+	if err != nil {
+		return tools.CreateAPIResponse(http.StatusBadRequest, "Error : "+err.Error()), nil
+	}
+
+	body, err := json.Marshal(c)
+	if err != nil {
+		return tools.CreateAPIResponse(http.StatusBadRequest, "Error converting model to json body: "+err.Error()), nil
+	}
+
+	// 3. Return success response
+	return tools.CreateAPIResponse(http.StatusOK, fmt.Sprintf(`{"Result ": %s}`, body)), nil
+}

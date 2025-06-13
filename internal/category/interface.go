@@ -6,4 +6,5 @@ type Storage interface {
 	InsertCategory(c models.Category) (int64, error)
 	UpdateCategory(c models.Category) error
 	DeleteCategory(id int) error
+	GetCategory(id int) (models.Category, error)
 }

@@ -41,7 +41,7 @@ func (s *Service) UpdateCategory(c models.Category) error {
 
 }
 
-// CreateCategory performs validation and delegates to the repository.
+// DeleteCategory performs validation and delegates to the repository.
 func (s *Service) DeleteCategory(id int) error {
 	// Simple validation (can be more elaborate in real use cases)
 	if id < 1 {
@@ -49,6 +49,20 @@ func (s *Service) DeleteCategory(id int) error {
 	}
 	// Business logic: could include auditing, formatting, etc.
 	return s.repo.DeleteCategory(id)
+
+}
+
+// CreateCategory performs validation and delegates to the repository.
+func (s *Service) GetCategory(id int) (models.Category, error) {
+
+	// Simple validation (can be more elaborate in real use cases)
+	if id < 1 {
+		return models.Category{}, ErrInvalidCategoryId
+	}
+
+	// Business logic: could include auditing, formatting, etc.
+
+	return s.repo.GetCategory(id)
 
 }
 
