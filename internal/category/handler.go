@@ -95,7 +95,9 @@ func (h *Handler) Delete(request events.APIGatewayV2HTTPRequest) (*events.APIGat
 // Post handles the HTTP DELETE request to delete a category
 func (h *Handler) Get(request events.APIGatewayV2HTTPRequest) (*events.APIGatewayProxyResponse, error) {
 
+	// 1 - First check if id is a query string parameter
 	idstr := request.QueryStringParameters["id"]
+	slug := request.QueryStringParameters["slug"]
 	if idstr != "" {
 
 		// 1. Try to parse the incoming idstr
@@ -116,10 +118,28 @@ func (h *Handler) Get(request events.APIGatewayV2HTTPRequest) (*events.APIGatewa
 		}
 
 		// 3. Return success response
-		return tools.CreateAPIResponse(http.StatusOK, fmt.Sprintf(`{"Result ": %s}`, body)), nil
+		return tools.CreateAPIResponse(http.StatusOK, string(body)), nil
+
+	} else if slug != "" {
+		// 2 - Second check if slug is a query string parameter
+
+		// 1. Call service to update category
+		c, err := h.service.GetCategoryBySlug(slug)
+		if err != nil {
+			return tools.CreateAPIResponse(http.StatusBadRequest, "Error : "+err.Error()), nil
+		}
+
+		body, err := json.Marshal(c)
+		if err != nil {
+			return tools.CreateAPIResponse(http.StatusBadRequest, "Error converting model to json body: "+err.Error()), nil
+		}
+
+		// 3. Return success response
+		return tools.CreateAPIResponse(http.StatusOK, string(body)), nil
 
 	}
 
+	// 3  - Third retrieve all rows
 	categories, err := h.service.GetCategories()
 	if err != nil {
 		return tools.CreateAPIResponse(http.StatusBadRequest, "Error : "+err.Error()), nil
@@ -131,6 +151,6 @@ func (h *Handler) Get(request events.APIGatewayV2HTTPRequest) (*events.APIGatewa
 	}
 
 	// 3. Return success response
-	return tools.CreateAPIResponse(http.StatusOK, fmt.Sprintf(`{"Result ": %s}`, body)), nil
+	return tools.CreateAPIResponse(http.StatusOK, string(body)), nil
 
 }

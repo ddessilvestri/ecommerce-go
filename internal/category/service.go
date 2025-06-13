@@ -73,6 +73,21 @@ func (s *Service) GetCategories() ([]models.Category, error) {
 
 }
 
+// GetCategory by id performs validation and delegates to the repository.
+func (s *Service) GetCategoryBySlug(slug string) ([]models.Category, error) {
+
+	// Simple validation (can be more elaborate in real use cases)
+	if slug == "" {
+		return []models.Category{}, ErrInvalidCategorySlug
+	}
+
+	// Business logic: could include auditing, formatting, etc.
+
+	return s.repo.GetCategoryBySlug(slug)
+
+}
+
 // ErrInvalidCategory represents a validation error.
 var ErrInvalidCategory = errors.New("invalid category: name and path are required")
 var ErrInvalidCategoryId = errors.New("invalid category Id: Id < 1 ")
+var ErrInvalidCategorySlug = errors.New("invalid category Slug: empty slug ")

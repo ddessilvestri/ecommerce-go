@@ -8,4 +8,5 @@ type Storage interface {
 	DeleteCategory(id int) error
 	GetCategory(id int) (models.Category, error)
 	GetCategories() ([]models.Category, error)
+	GetCategoryBySlug(slug string) ([]models.Category, error)
 }

@@ -152,3 +152,42 @@ func (r *repositorySQL) GetCategories() ([]models.Category, error) {
 	return categories, nil
 
 }
+
+func (r *repositorySQL) GetCategoryBySlug(slug string) ([]models.Category, error) {
+	// Build a safe SQL UPDATE query using the squirrel package
+	query, args, err := squirrel.
+		Select("Categ_Id", "Categ_Name", "Categ_Path").
+		From("category").
+		Where(squirrel.Like{"Categ_Path": "%" + slug + "%"}).
+		ToSql()
+
+	if err != nil {
+		return []models.Category{}, err
+	}
+
+	var categories []models.Category
+	var id int
+	var name, path string
+	// Execute the query with the generated SQL and arguments
+	rows, err := r.db.Query(query, args...)
+
+	if err != nil {
+		return []models.Category{}, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		if err := rows.Scan(&id, &name, &path); err != nil {
+			return []models.Category{}, err
+		}
+		categories = append(categories, models.Category{
+			CategID:   id,
+			CategName: name,
+			CategPath: path,
+		})
+
+	}
+
+	return categories, nil
+
+}
