@@ -19,3 +19,17 @@ type Category struct {
 	CategName string `json:"categName"`
 	CategPath string `json:"categPath"`
 }
+
+type Product struct {
+	Id          int     `json:"prodID"`
+	Title       string  `json:"prodTitle"`
+	Description string  `json:"prodDescription"`
+	CreatedAt   string  `json:"prodCreatedAt"`
+	Updated     string  `json:"prodUpdated"`
+	Price       float64 `json:"prodPrice,omitempty"`
+	Stock       int     `json:"prodStock"`
+	CategId     int     `json:"prodCategId"`
+	Path        string  `json:"prodPath"`
+	Search      string  `json:"search,omitempty"`
+	CategPath   string  `json:"categPath,omitempty"`
+}
