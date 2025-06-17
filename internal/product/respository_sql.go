@@ -72,25 +72,46 @@ func (r *repositorySQL) Insert(p models.Product) (int64, error) {
 
 }
 
-func (r *repositorySQL) Update(c models.Product) error {
-	// Build a safe SQL UPDATE query using the squirrel package
-	query, args, err := squirrel.
-		Update("product").
-		Set("Prod_Title", c.Title).
-		Where(squirrel.Eq{"Categ_Id": c.Id}).
+func (r *repositorySQL) Update(p models.Product) error {
+	builder := squirrel.
+		Update("products").
+		PlaceholderFormat(squirrel.Question).
+		Set("Prod_Updated", squirrel.Expr("NOW()"))
+
+	// Agregamos los campos modificados
+	if p.Title != "" {
+		builder = builder.Set("Prod_Title", p.Title)
+	}
+	if p.Description != "" {
+		builder = builder.Set("Prod_Description", p.Description)
+	}
+	if p.Price != 0 {
+		builder = builder.Set("Prod_Price", p.Price)
+	}
+	if p.Stock != 0 {
+		builder = builder.Set("Prod_Stock", p.Stock)
+	}
+	if p.CategId != 0 {
+		builder = builder.Set("Prod_CategId", p.CategId)
+	}
+	if p.Path != "" {
+		builder = builder.Set("Prod_Path", p.Path)
+	}
+
+	query, args, err := builder.
+		Where(squirrel.Eq{"Prod_Id": p.Id}).
 		ToSql()
 
 	if err != nil {
 		return err
 	}
 
-	// Execute the query with the generated SQL and arguments
 	_, err = r.db.Exec(query, args...)
+
 	if err != nil {
 		return err
 	}
 
-	// Return the updated ID
 	return nil
 }
 

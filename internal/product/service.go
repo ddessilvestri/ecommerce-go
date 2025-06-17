@@ -23,13 +23,13 @@ func (s *Service) Create(c models.Product) (int64, error) {
 	return s.repo.Insert(c)
 }
 
-func (s *Service) UpdateProduct(c models.Product) error {
+func (s *Service) Update(c models.Product) error {
 	if c.Title == "" {
 		return ErrInvalidProduct
 	}
-	// if c.CategID < 1 {
-	// 	return ErrInvalidProductId
-	// }
+	if c.Id < 1 {
+		return ErrInvalidProductId
+	}
 	return s.repo.Update(c)
 
 }
