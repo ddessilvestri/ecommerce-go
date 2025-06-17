@@ -53,7 +53,7 @@ func (r *repositorySQL) Insert(p models.Product) (int64, error) {
 	}
 
 	query, args, err := squirrel.
-		Insert("product").
+		Insert("products").
 		Columns(columns...).
 		Values(values...).
 		PlaceholderFormat(squirrel.Question).
