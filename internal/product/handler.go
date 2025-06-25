@@ -21,41 +21,34 @@ func NewHandler(service *Service) *Handler {
 	return &Handler{service: service}
 }
 
-// Post handles the HTTP POST request to create a category
 func (h *Handler) Post(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse {
 
 	var c models.Product
 	body := request.Body
 
-	// // 1. Try to parse the incoming JSON
 	err := json.Unmarshal([]byte(body), &c)
 	if err != nil {
 		return tools.CreateAPIResponse(http.StatusBadRequest, "Invalid JSON body: "+err.Error())
 	}
 
-	// // 2. Call service to create category
 	id, err := h.service.Create(c)
 	if err != nil {
 		return tools.CreateAPIResponse(http.StatusBadRequest, "Error : "+err.Error())
 	}
 
-	// 3. Return success response
 	return tools.CreateAPIResponse(http.StatusOK, fmt.Sprintf(`{"ProductID": %d}`, id))
 }
 
-// Post handles the HTTP POST request to create a category
 func (h *Handler) Put(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse {
 
 	var c models.Product
 	body := request.Body
 
-	// // 1. Try to parse the incoming JSON
 	err := json.Unmarshal([]byte(body), &c)
 	if err != nil {
 		return tools.CreateAPIResponse(http.StatusBadRequest, "Invalid JSON body: "+err.Error())
 	}
 
-	// // 2. Try to parse the incoming id
 	id := request.PathParameters["id"]
 	idn, err := strconv.Atoi(id)
 	if err != nil {
@@ -64,95 +57,117 @@ func (h *Handler) Put(request events.APIGatewayV2HTTPRequest) *events.APIGateway
 
 	c.Id = idn
 
-	// // 3. Call service to update category
 	err = h.service.Update(c)
 	if err != nil {
 		return tools.CreateAPIResponse(http.StatusBadRequest, "Error : "+err.Error())
 	}
 
-	// // 3. Return success response
 	return tools.CreateAPIResponse(http.StatusOK, fmt.Sprintf(`{"Updated ProductId": %d}`, idn))
 }
 
 // Post handles the HTTP DELETE request to delete a category
 func (h *Handler) Delete(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse {
-	return tools.CreateAPIResponse(http.StatusMethodNotAllowed, "Not implemented")
-	// // 1. Try to parse the incoming id
-	// id := request.PathParameters["id"]
-	// idn, err := strconv.Atoi(id)
-	// if err != nil {
-	// 	return tools.CreateAPIResponse(http.StatusBadRequest, "Invalid CategoryId: "+err.Error())
-	// }
 
-	// // 2. Call service to update category
-	// err = h.service.DeleteCategory(idn)
-	// if err != nil {
-	// 	return tools.CreateAPIResponse(http.StatusBadRequest, "Error : "+err.Error())
-	// }
+	id := request.PathParameters["id"]
+	idn, err := strconv.Atoi(id)
+	if err != nil {
+		return tools.CreateAPIResponse(http.StatusBadRequest, "Invalid ProductId: "+err.Error())
+	}
 
-	// // 3. Return success response
-	// return tools.CreateAPIResponse(http.StatusOK, fmt.Sprintf(`{"Deleted CategID": %d}`, idn))
+	err = h.service.Delete(idn)
+	if err != nil {
+		return tools.CreateAPIResponse(http.StatusBadRequest, "Error : "+err.Error())
+	}
+	return tools.CreateAPIResponse(http.StatusOK, fmt.Sprintf(`{"Deleted ProductId": %d}`, idn))
+
 }
 
-// Post handles the HTTP DELETE request to delete a category
 func (h *Handler) Get(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse {
+
 	return tools.CreateAPIResponse(http.StatusMethodNotAllowed, "Not implemented")
-	// // 1 - First check if id is a query string parameter
-	// idstr := request.QueryStringParameters["id"]
-	// slug := request.QueryStringParameters["slug"]
+	//query := request.QueryStringParameters
+
+	// idstr := query["id"]
+
 	// if idstr != "" {
-
-	// 	// 1. Try to parse the incoming idstr
-	// 	idn, err := strconv.Atoi(idstr)
-	// 	if err != nil {
-	// 		return tools.CreateAPIResponse(http.StatusBadRequest, "Invalid CategoryId: "+err.Error())
+	// 	id, err := strconv.Atoi(idstr)
+	// 	if err != nil || id < 0 {
+	// 		return tools.CreateAPIResponse(http.StatusBadRequest, "Invalid id parameter")
 	// 	}
 
-	// 	// 2. Call service to update category
-	// 	c, err := h.service.GetCategory(idn)
+	// 	product, err := h.service.GetById(id)
 	// 	if err != nil {
-	// 		return tools.CreateAPIResponse(http.StatusBadRequest, "Error : "+err.Error())
+	// 		return tools.CreateAPIResponse(http.StatusBadRequest, "Invalid getting product :"+err.Error())
 	// 	}
-
-	// 	body, err := json.Marshal(c)
+	// 	body, err := json.Marshal(product)
 	// 	if err != nil {
 	// 		return tools.CreateAPIResponse(http.StatusBadRequest, "Error converting model to json body: "+err.Error())
-	// 	}
 
-	// 	// 3. Return success response
+	// 	}
 	// 	return tools.CreateAPIResponse(http.StatusOK, string(body))
+	// }
 
-	// } else if slug != "" {
-	// 	// 2 - Second check if slug is a query string parameter
+	// page := 1 // default value 1
+	// val := query["page"]
+	// if val != "" {
+	// 	parsed, err := strconv.Atoi(val)
+	// 	if err != nil || parsed < 1 {
+	// 		return tools.CreateAPIResponse(http.StatusBadRequest, "Invalid page parameter")
+	// 	}
+	// 	page = parsed
+	// }
 
-	// 	// 1. Call service to update category
-	// 	c, err := h.service.GetCategoryBySlug(slug)
-	// 	if err != nil {
-	// 		return tools.CreateAPIResponse(http.StatusBadRequest, "Error : "+err.Error())
+	// limit := 10 // default value 10
+	// val = query["limit"]
+	// if val != "" {
+	// 	parsed, err := strconv.Atoi(val)
+	// 	if err != nil || parsed < 1 {
+	// 		return tools.CreateAPIResponse(http.StatusBadRequest, "Invalid limit parameter")
+	// 	}
+	// 	limit = parsed
+	// }
+
+	// sortBy := "id" // default value id sort by Product Id
+	// val = query["sort_by"]
+	// if val != "" {
+	// 	allowed := map[string]bool{
+	// 		"id":          true, // default value
+	// 		"title":       true,
+	// 		"description": true,
+	// 		"price":       true,
+	// 		"category_id": true,
+	// 		"stock":       true,
+	// 		"created_at":  true,
+	// 	}
+	// 	if !allowed[val] {
+	// 		return tools.CreateAPIResponse(http.StatusBadRequest, "Invalid sort by parameter")
 	// 	}
 
-	// 	body, err := json.Marshal(c)
-	// 	if err != nil {
-	// 		return tools.CreateAPIResponse(http.StatusBadRequest, "Error converting model to json body: "+err.Error())
-	// 	}
-
-	// 	// 3. Return success response
-	// 	return tools.CreateAPIResponse(http.StatusOK, string(body))
+	// 	sortBy = val
 
 	// }
 
-	// // 3  - Third retrieve all rows
-	// categories, err := h.service.GetCategories()
+	// order := "ASC" // default value is ASC
+	// val = query["order"]
+	// if val != "" {
+	// 	upper := strings.ToUpper(val)
+	// 	if upper != "ASC" && upper != "DESC" {
+	// 		return tools.CreateAPIResponse(http.StatusBadRequest, "Invalid order parameter")
+
+	// 	}
+	// 	order = upper
+	// }
+
+	// products, err := h.service.GetAll(page, limit, sortBy, order)
 	// if err != nil {
 	// 	return tools.CreateAPIResponse(http.StatusBadRequest, "Error : "+err.Error())
 	// }
 
-	// body, err := json.Marshal(categories)
+	// body, err := json.Marshal(products)
 	// if err != nil {
 	// 	return tools.CreateAPIResponse(http.StatusBadRequest, "Error converting model to json body: "+err.Error())
+
 	// }
 
-	// // 3. Return success response
 	// return tools.CreateAPIResponse(http.StatusOK, string(body))
-
 }

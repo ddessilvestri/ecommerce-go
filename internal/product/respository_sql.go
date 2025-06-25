@@ -116,23 +116,20 @@ func (r *repositorySQL) Update(p models.Product) error {
 }
 
 func (r *repositorySQL) Delete(id int) error {
-	// Build a safe SQL UPDATE query using the squirrel package
 	query, args, err := squirrel.
-		Delete("product").
-		Where(squirrel.Eq{"Categ_Id": id}).
+		Delete("products").
+		Where(squirrel.Eq{"Prod_Id": id}).
 		ToSql()
 
 	if err != nil {
 		return err
 	}
 
-	// Execute the query with the generated SQL and arguments
 	_, err = r.db.Exec(query, args...)
 	if err != nil {
 		return err
 	}
 
-	// Return the updated ID
 	return nil
 }
 
