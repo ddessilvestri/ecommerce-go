@@ -2,6 +2,7 @@ package product
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/ddessilvestri/ecommerce-go/models"
@@ -134,106 +135,219 @@ func (r *repositorySQL) Delete(id int) error {
 }
 
 func (r *repositorySQL) GetById(id int) (models.Product, error) {
-	// Build a safe SQL UPDATE query using the squirrel package
 	query, args, err := squirrel.
-		Select("Categ_Name", "Categ_Path").
-		From("product").
-		Where(squirrel.Eq{"Categ_Id": id}).
+		Select("Prod_Id", "Prod_Title", "Prod_Description",
+			"Prod_CreatedAt", "Prod_Updated", "Prod_Price", "Prod_Path",
+			"Prod_CategoryId", "Prod_Stock", "Categ_Path").
+		From("products").
+		Join("categories ON products.Prod_CategId = Categ_Id").
+		Where(squirrel.Eq{"Prod_Id": id}).
+		PlaceholderFormat(squirrel.Question).
 		ToSql()
 
 	if err != nil {
 		return models.Product{}, err
 	}
 
-	var name, path string
-	// Execute the query with the generated SQL and arguments
 	row := r.db.QueryRow(query, args...)
-	if err := row.Scan(&name, &path); err != nil {
+	var p models.Product
+	err = row.Scan(&p.Id, &p.Title, &p.Description, &p.CreatedAt, &p.Updated, &p.Price, &p.Path, &p.CategId, &p.Stock, &p.CategPath)
+	if err != nil {
 		return models.Product{}, err
 	}
 
-	return models.Product{
-		Id:    id,
-		Title: name,
-	}, nil
-
-}
-func (r *repositorySQL) GetAll() ([]models.Product, error) {
-	return []models.Product{}, nil
-	// Build a safe SQL UPDATE query using the squirrel package
-	// query, args, err := squirrel.
-	// 	Select("Categ_Id", "Categ_Name", "Categ_Path").
-	// 	From("category").
-	// 	ToSql()
-
-	// if err != nil {
-	// 	return []models.Product{}, err
-	// }
-
-	// var categories []models.Product
-	// var id int
-	// var name, path string
-	// // Execute the query with the generated SQL and arguments
-	// rows, err := r.db.Query(query, args...)
-
-	// if err != nil {
-	// 	return []models.Product{}, err
-	// }
-	// defer rows.Close()
-
-	// for rows.Next() {
-	// 	if err := rows.Scan(&id, &name, &path); err != nil {
-	// 		return []models.Product{}, err
-	// 	}
-	// 	categories = append(categories, models.Category{
-	// 		CategID:   id,
-	// 		CategName: name,
-	// 		CategPath: path,
-	// 	})
-
-	// }
-
-	// return categories, nil
-
+	return p, nil
 }
 
-func (r *repositorySQL) GetBySlug(slug string) ([]models.Product, error) {
-	return []models.Product{}, nil
+func (r *repositorySQL) GetBySlug(slug string) (models.Product, error) {
+	query, args, err := squirrel.
+		Select("Prod_Id", "Prod_Title", "Prod_Description",
+			"Prod_CreatedAt", "Prod_Updated", "Prod_Price", "Prod_Path",
+			"Prod_CategoryId", "Prod_Stock", "Categ_Path").
+		From("products").
+		Join("categories ON products.Prod_CategId = Categ_Id").
+		Where(squirrel.Eq{"Prod_Path": slug}).
+		PlaceholderFormat(squirrel.Question).
+		ToSql()
 
-	// Build a safe SQL UPDATE query using the squirrel package
-	// query, args, err := squirrel.
-	// 	Select("Categ_Id", "Categ_Name", "Categ_Path").
-	// 	From("category").
-	// 	Where(squirrel.Like{"Categ_Path": "%" + slug + "%"}).
-	// 	ToSql()
+	if err != nil {
+		return models.Product{}, err
+	}
 
-	// if err != nil {
-	// 	return []models.Category{}, err
-	// }
+	row := r.db.QueryRow(query, args...)
+	var p models.Product
+	err = row.Scan(&p.Id, &p.Title, &p.Description, &p.CreatedAt, &p.Updated, &p.Price, &p.Path, &p.CategId, &p.Stock, &p.CategPath)
 
-	// var categories []models.Category
-	// var id int
-	// var name, path string
-	// // Execute the query with the generated SQL and arguments
-	// rows, err := r.db.Query(query, args...)
+	if err != nil {
+		return models.Product{}, err
+	}
 
-	// if err != nil {
-	// 	return []models.Category{}, err
-	// }
-	// defer rows.Close()
+	return p, nil
+}
 
-	// for rows.Next() {
-	// 	if err := rows.Scan(&id, &name, &path); err != nil {
-	// 		return []models.Category{}, err
-	// 	}
-	// 	categories = append(categories, models.Category{
-	// 		CategID:   id,
-	// 		CategName: name,
-	// 		CategPath: path,
-	// 	})
+func (r *repositorySQL) GetByCategoryId(id int) ([]models.Product, error) {
+	query, args, err := squirrel.
+		Select("Prod_Id", "Prod_Title", "Prod_Description",
+			"Prod_CreatedAt", "Prod_Updated", "Prod_Price", "Prod_Path",
+			"Prod_CategoryId", "Prod_Stock", "Categ_Path").
+		From("products").
+		Join("categories ON products.Prod_CategId = Categ_Id").
+		Where(squirrel.Eq{"Prod_CategId": id}).
+		PlaceholderFormat(squirrel.Question).
+		ToSql()
 
-	// }
+	if err != nil {
+		return nil, err
+	}
 
-	// return categories, nil
+	rows, err := r.db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 
+	var products []models.Product
+	for rows.Next() {
+		var p models.Product
+		if err = rows.Scan(&p.Id, &p.Title, &p.Description, &p.CreatedAt, &p.Updated, &p.Price, &p.Path, &p.CategId, &p.Stock, &p.CategPath); err != nil {
+			return nil, err
+		}
+		products = append(products, p)
+	}
+
+	return products, nil
+}
+
+func (r *repositorySQL) GetByCategorySlug(slug string) ([]models.Product, error) {
+	query, args, err := squirrel.
+		Select("Prod_Id", "Prod_Title", "Prod_Description",
+			"Prod_CreatedAt", "Prod_Updated", "Prod_Price", "Prod_Path",
+			"Prod_CategoryId", "Prod_Stock", "Categ_Path").
+		From("products").
+		Join("categories ON products.Prod_CategId = Categ_Id").
+		Where(squirrel.Eq{"Categ_Path": slug}).
+		PlaceholderFormat(squirrel.Question).
+		ToSql()
+
+	if err != nil {
+		return nil, err
+	}
+	rows, err := r.db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var products []models.Product
+	for rows.Next() {
+		var p models.Product
+		if err = rows.Scan(&p.Id, &p.Title, &p.Description, &p.CreatedAt, &p.Updated, &p.Price, &p.Path, &p.CategId, &p.Stock, &p.CategPath); err != nil {
+			return nil, err
+		}
+		products = append(products, p)
+	}
+
+	return products, nil
+
+}
+
+func (r *repositorySQL) SearchByText(search string, offset, limit int, sortBy, order string) ([]models.Product, error) {
+	allowedSorts := map[string]string{
+		"id":          "Prod_Id",
+		"title":       "Prod_Title",
+		"description": "Prod_Description",
+		"price":       "Prod_Price",
+		"category_id": "Prod_CategId",
+		"stock":       "Prod_Stock",
+		"created_at":  "Prod_CreatedAt",
+	}
+	dbSortBy, ok := allowedSorts[sortBy]
+	if !ok {
+		dbSortBy = "Prod_Title"
+	}
+
+	queryBuilder := squirrel.
+		Select("Prod_Id", "Prod_Title", "Prod_Description",
+			"Prod_CreatedAt", "Prod_Updated", "Prod_Price", "Prod_Path",
+			"Prod_CategoryId", "Prod_Stock", "Categ_Path").
+		From("products").
+		Join("categories ON products.Prod_CategId = Categ_Id").
+		Where(squirrel.Or{
+			squirrel.Like{"Prod_Title": "%" + search + "%"},
+			squirrel.Like{"Prod_Description": "%" + search + "%"},
+		}).
+		OrderBy(fmt.Sprintf("%s %s", dbSortBy, order)).
+		Offset(uint64(offset)).
+		Limit(uint64(limit)).
+		PlaceholderFormat(squirrel.Question)
+
+	query, args, err := queryBuilder.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := r.db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var products []models.Product
+	for rows.Next() {
+		var p models.Product
+		if err = rows.Scan(&p.Id, &p.Title, &p.Description, &p.CreatedAt, &p.Updated, &p.Price, &p.Path, &p.CategId, &p.Stock, &p.CategPath); err != nil {
+			return nil, err
+		}
+		products = append(products, p)
+	}
+
+	return products, nil
+}
+
+func (r *repositorySQL) GetAll(offset, limit int, sortBy, order string) ([]models.Product, error) {
+	allowedSorts := map[string]string{
+		"id":          "Prod_Id",
+		"title":       "Prod_Title",
+		"description": "Prod_Description",
+		"price":       "Prod_Price",
+		"category_id": "Prod_CategId",
+		"stock":       "Prod_Stock",
+		"created_at":  "Prod_CreatedAt",
+	}
+	dbSortBy, ok := allowedSorts[sortBy]
+	if !ok {
+		dbSortBy = "Prod_Title"
+	}
+
+	queryBuilder := squirrel.
+		Select("Prod_Id", "Prod_Title", "Prod_Description",
+			"Prod_CreatedAt", "Prod_Updated", "Prod_Price", "Prod_Path",
+			"Prod_CategoryId", "Prod_Stock", "Categ_Path").
+		From("products").
+		Join("categories ON products.Prod_CategId = Categ_Id").
+		OrderBy(fmt.Sprintf("%s %s", dbSortBy, order)).
+		Offset(uint64(offset)).
+		Limit(uint64(limit)).
+		PlaceholderFormat(squirrel.Question)
+
+	query, args, err := queryBuilder.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := r.db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var products []models.Product
+	for rows.Next() {
+		var p models.Product
+		if err = rows.Scan(&p.Id, &p.Title, &p.Description, &p.CreatedAt, &p.Updated, &p.Price, &p.Path, &p.CategId, &p.Stock, &p.CategPath); err != nil {
+			return nil, err
+		}
+		products = append(products, p)
+	}
+	return products, nil
 }

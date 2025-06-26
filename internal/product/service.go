@@ -42,7 +42,7 @@ func (s *Service) Delete(id int) error {
 
 }
 
-func (s *Service) Get(id int) (models.Product, error) {
+func (s *Service) GetById(id int) (models.Product, error) {
 
 	if id < 1 {
 		return models.Product{}, ErrInvalidProductId
@@ -52,20 +52,44 @@ func (s *Service) Get(id int) (models.Product, error) {
 
 }
 
-func (s *Service) GetAll() ([]models.Product, error) {
+func (s *Service) GetByCategoryId(id int) ([]models.Product, error) {
 
-	return s.repo.GetAll()
+	if id < 1 {
+		return []models.Product{}, ErrInvalidProductId
+	}
+
+	return s.repo.GetByCategoryId(id)
 
 }
 
-func (s *Service) GetBySlug(slug string) ([]models.Product, error) {
+func (s *Service) GetAll(page, limit int, sortBy, order string) ([]models.Product, error) {
+	offset := (page - 1) * limit
+	return s.repo.GetAll(offset, limit, sortBy, order)
+}
+
+func (s *Service) GetBySlug(slug string) (models.Product, error) {
+
+	if slug == "" {
+		return models.Product{}, ErrInvalidProductSlug
+	}
+
+	return s.repo.GetBySlug(slug)
+
+}
+
+func (s *Service) GetByCategorySlug(slug string) ([]models.Product, error) {
 
 	if slug == "" {
 		return []models.Product{}, ErrInvalidProductSlug
 	}
 
-	return s.repo.GetBySlug(slug)
+	return s.repo.GetByCategorySlug(slug)
 
+}
+
+func (s *Service) SearchByText(text string, page, limit int, sortBy, order string) ([]models.Product, error) {
+	offset := (page - 1) * limit
+	return s.repo.SearchByText(text, offset, limit, sortBy, order)
 }
 
 var ErrInvalidProduct = errors.New("invalid product: title is required")
