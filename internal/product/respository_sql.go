@@ -136,12 +136,12 @@ func (r *repositorySQL) Delete(id int) error {
 
 func (r *repositorySQL) GetById(id int) (models.Product, error) {
 	query, args, err := squirrel.
-		Select("Prod_Id", "Prod_Title", "Prod_Description",
-			"Prod_CreatedAt", "Prod_Updated", "Prod_Price", "Prod_Path",
-			"Prod_CategoryId", "Prod_Stock", "Categ_Path").
-		From("products").
-		Join("categories ON products.Prod_CategId = Categ_Id").
-		Where(squirrel.Eq{"Prod_Id": id}).
+		Select("p.Prod_Id", "p.Prod_Title", "p.Prod_Description",
+			"p.Prod_CreatedAt", "p.Prod_Updated", "p.Prod_Price", "p.Prod_Path",
+			"p.Prod_CategoryId", "p.Prod_Stock", "c.Categ_Path").
+		From("products p").
+		Join("category c ON p.Prod_CategoryId = c.Categ_Id").
+		Where(squirrel.Eq{"p.Prod_Id": id}).
 		PlaceholderFormat(squirrel.Question).
 		ToSql()
 
@@ -165,7 +165,7 @@ func (r *repositorySQL) GetBySlug(slug string) (models.Product, error) {
 			"Prod_CreatedAt", "Prod_Updated", "Prod_Price", "Prod_Path",
 			"Prod_CategoryId", "Prod_Stock", "Categ_Path").
 		From("products").
-		Join("categories ON products.Prod_CategId = Categ_Id").
+		Join("category ON products.Prod_CategoryId = Categ_Id").
 		Where(squirrel.Eq{"Prod_Path": slug}).
 		PlaceholderFormat(squirrel.Question).
 		ToSql()
@@ -191,7 +191,7 @@ func (r *repositorySQL) GetByCategoryId(id int) ([]models.Product, error) {
 			"Prod_CreatedAt", "Prod_Updated", "Prod_Price", "Prod_Path",
 			"Prod_CategoryId", "Prod_Stock", "Categ_Path").
 		From("products").
-		Join("categories ON products.Prod_CategId = Categ_Id").
+		Join("category ON products.Prod_CategoryId = Categ_Id").
 		Where(squirrel.Eq{"Prod_CategId": id}).
 		PlaceholderFormat(squirrel.Question).
 		ToSql()
@@ -224,7 +224,7 @@ func (r *repositorySQL) GetByCategorySlug(slug string) ([]models.Product, error)
 			"Prod_CreatedAt", "Prod_Updated", "Prod_Price", "Prod_Path",
 			"Prod_CategoryId", "Prod_Stock", "Categ_Path").
 		From("products").
-		Join("categories ON products.Prod_CategId = Categ_Id").
+		Join("category ON products.Prod_CategoryId = Categ_Id").
 		Where(squirrel.Eq{"Categ_Path": slug}).
 		PlaceholderFormat(squirrel.Question).
 		ToSql()
@@ -271,7 +271,7 @@ func (r *repositorySQL) SearchByText(search string, offset, limit int, sortBy, o
 			"Prod_CreatedAt", "Prod_Updated", "Prod_Price", "Prod_Path",
 			"Prod_CategoryId", "Prod_Stock", "Categ_Path").
 		From("products").
-		Join("categories ON products.Prod_CategId = Categ_Id").
+		Join("category ON products.Prod_CategoryId = Categ_Id").
 		Where(squirrel.Or{
 			squirrel.Like{"Prod_Title": "%" + search + "%"},
 			squirrel.Like{"Prod_Description": "%" + search + "%"},
@@ -324,7 +324,7 @@ func (r *repositorySQL) GetAll(offset, limit int, sortBy, order string) ([]model
 			"Prod_CreatedAt", "Prod_Updated", "Prod_Price", "Prod_Path",
 			"Prod_CategoryId", "Prod_Stock", "Categ_Path").
 		From("products").
-		Join("categories ON products.Prod_CategId = Categ_Id").
+		Join("category ON products.Prod_CategoryId = Categ_Id").
 		OrderBy(fmt.Sprintf("%s %s", dbSortBy, order)).
 		Offset(uint64(offset)).
 		Limit(uint64(limit)).

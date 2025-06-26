@@ -26,7 +26,7 @@ func (r *Router) Post(request events.APIGatewayV2HTTPRequest) *events.APIGateway
 
 // Future implementations (stubs for now)
 func (r *Router) Get(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse {
-	return r.handler.Post(request)
+	return r.handler.Get(request)
 }
 
 func (r *Router) Put(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse {
