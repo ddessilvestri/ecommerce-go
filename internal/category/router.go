@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/ddessilvestri/ecommerce-go/models"
 )
 
 // Router struct contains all dependencies
@@ -12,7 +13,7 @@ type Router struct {
 }
 
 // NewCategoryRouter sets up the repository, service, and handler
-func NewCategoryRouter(db *sql.DB) *Router {
+func NewRouter(db *sql.DB) *Router {
 	repo := NewSQLRepository(db)
 	service := NewCategoryService(repo)
 	handler := NewCategoryHandler(service)
@@ -21,23 +22,23 @@ func NewCategoryRouter(db *sql.DB) *Router {
 
 // Implements the EntityRouter interface
 
-func (r *Router) Post(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse {
-	resp, _ := r.handler.Post(request)
+func (r *Router) Post(requestWithContext models.RequestWithContext) *events.APIGatewayProxyResponse {
+	resp, _ := r.handler.Post(requestWithContext)
 	return resp
 }
 
 // Future implementations (stubs for now)
-func (r *Router) Get(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse {
-	resp, _ := r.handler.Get(request)
+func (r *Router) Get(requestWithContext models.RequestWithContext) *events.APIGatewayProxyResponse {
+	resp, _ := r.handler.Get(requestWithContext)
 	return resp
 }
 
-func (r *Router) Put(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse {
-	resp, _ := r.handler.Put(request)
+func (r *Router) Put(requestWithContext models.RequestWithContext) *events.APIGatewayProxyResponse {
+	resp, _ := r.handler.Put(requestWithContext)
 	return resp
 }
 
-func (r *Router) Delete(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse {
-	resp, _ := r.handler.Delete(request)
+func (r *Router) Delete(requestWithContext models.RequestWithContext) *events.APIGatewayProxyResponse {
+	resp, _ := r.handler.Delete(requestWithContext)
 	return resp
 }

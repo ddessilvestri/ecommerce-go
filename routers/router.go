@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"net/http"
@@ -8,6 +9,9 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/ddessilvestri/ecommerce-go/auth"
+	authContext "github.com/ddessilvestri/ecommerce-go/auth/context"
+	"github.com/ddessilvestri/ecommerce-go/models"
+
 	"github.com/ddessilvestri/ecommerce-go/internal/category"
 	"github.com/ddessilvestri/ecommerce-go/internal/product"
 	"github.com/ddessilvestri/ecommerce-go/internal/stock"
@@ -24,42 +28,40 @@ const (
 
 // Router determines which entity router should handle the request.
 func Router(request events.APIGatewayV2HTTPRequest, urlPrefix string, db *sql.DB) *events.APIGatewayProxyResponse {
-	// Extract path & method
 	path := strings.Replace(request.RawPath, urlPrefix, "", 1)
 	method := request.RequestContext.HTTP.Method
 	header := request.Headers
 
-	// Extract main segment (e.g. /category/123 => category)
 	firstSegment := getFirstPathSegment(path)
 
-	// Find the corresponding entity router (e.g., category.Router)
 	entityRouter, err := CreateRouter(firstSegment, db)
 	if err != nil {
 		return tools.CreateAPIResponse(http.StatusBadRequest, "Unable to route request: "+err.Error())
 	}
 
-	// Authenticate
-	isOk, statusCode, user := auth.AuthValidation(path, method, header)
-	if !isOk {
-		return &events.APIGatewayProxyResponse{
-			StatusCode: statusCode,
-			Body:       user,
+	var authUser *models.AuthUser
+
+	if !(path == "product" && method == "GET") && !(path == "category" && method == "GET") {
+		authUser, err = auth.ExtractAuthUser(header)
+		if err != nil {
+			return tools.CreateAPIResponse(http.StatusUnauthorized, "Unable to authenticate user: "+err.Error())
 		}
 	}
 
-	// Route to correct handler based on HTTP method
+	context := authContext.WithUser(context.Background(), authUser)
+	requestWithContext := models.NewRequestWithContext(request, context)
+
 	switch method {
 	case GET:
-		return entityRouter.Get(request)
+		return entityRouter.Get(requestWithContext)
 	case POST:
-		return entityRouter.Post(request)
+		return entityRouter.Post(requestWithContext)
 	case PUT:
-		return entityRouter.Put(request)
+		return entityRouter.Put(requestWithContext)
 	case DELETE:
-		return entityRouter.Delete(request)
+		return entityRouter.Delete(requestWithContext)
 	default:
-		return tools.CreateAPIResponse(http.StatusMethodNotAllowed, " Method not allowed")
-
+		return tools.CreateAPIResponse(http.StatusMethodNotAllowed, "Method not allowed")
 	}
 }
 
@@ -67,7 +69,7 @@ func Router(request events.APIGatewayV2HTTPRequest, urlPrefix string, db *sql.DB
 func CreateRouter(entity string, db *sql.DB) (EntityRouter, error) {
 	switch entity {
 	case "category":
-		return category.NewCategoryRouter(db), nil
+		return category.NewRouter(db), nil
 	case "product":
 		return product.NewRouter(db), nil
 	case "stock":

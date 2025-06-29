@@ -1,4 +1,4 @@
-package product
+package user
 
 import (
 	"encoding/json"
@@ -22,35 +22,17 @@ func NewHandler(service *Service) *Handler {
 	return &Handler{service: service}
 }
 
-func (h *Handler) Post(requestWithContext models.RequestWithContext) *events.APIGatewayProxyResponse {
+func (h *Handler) Put(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse {
 
 	var c models.Product
-	body := requestWithContext.RequestBody()
+	body := request.Body
 
 	err := json.Unmarshal([]byte(body), &c)
 	if err != nil {
 		return tools.CreateAPIResponse(http.StatusBadRequest, "Invalid JSON body: "+err.Error())
 	}
 
-	id, err := h.service.Create(c)
-	if err != nil {
-		return tools.CreateAPIResponse(http.StatusBadRequest, "Error : "+err.Error())
-	}
-
-	return tools.CreateAPIResponse(http.StatusOK, fmt.Sprintf(`{"ProductID": %d}`, id))
-}
-
-func (h *Handler) Put(requestWithContext models.RequestWithContext) *events.APIGatewayProxyResponse {
-
-	var c models.Product
-	body := requestWithContext.RequestBody()
-
-	err := json.Unmarshal([]byte(body), &c)
-	if err != nil {
-		return tools.CreateAPIResponse(http.StatusBadRequest, "Invalid JSON body: "+err.Error())
-	}
-
-	id := requestWithContext.RequestPathParameters()["id"]
+	id := request.PathParameters["id"]
 	idn, err := strconv.Atoi(id)
 	if err != nil {
 		return tools.CreateAPIResponse(http.StatusBadRequest, "Invalid ProductId: "+err.Error())
@@ -66,25 +48,8 @@ func (h *Handler) Put(requestWithContext models.RequestWithContext) *events.APIG
 	return tools.CreateAPIResponse(http.StatusOK, fmt.Sprintf(`{"Updated ProductId": %d}`, idn))
 }
 
-// Post handles the HTTP DELETE request to delete a category
-func (h *Handler) Delete(requestWithContext models.RequestWithContext) *events.APIGatewayProxyResponse {
-
-	id := requestWithContext.RequestPathParameters()["id"]
-	idn, err := strconv.Atoi(id)
-	if err != nil {
-		return tools.CreateAPIResponse(http.StatusBadRequest, "Invalid ProductId: "+err.Error())
-	}
-
-	err = h.service.Delete(idn)
-	if err != nil {
-		return tools.CreateAPIResponse(http.StatusBadRequest, "Error : "+err.Error())
-	}
-	return tools.CreateAPIResponse(http.StatusOK, fmt.Sprintf(`{"Deleted ProductId": %d}`, idn))
-
-}
-
-func (h *Handler) Get(requestWithContext models.RequestWithContext) *events.APIGatewayProxyResponse {
-	query := requestWithContext.RequestQueryStringParameters()
+func (h *Handler) Get(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse {
+	query := request.QueryStringParameters
 
 	// === 1. Lookup by ID ===
 	if idStr := query["id"]; idStr != "" {
