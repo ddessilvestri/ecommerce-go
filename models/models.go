@@ -44,3 +44,20 @@ type Address struct {
 	PostalCode string `json:"postalCode"`
 	Phone      string `json:"phone"`
 }
+
+type OrdersDetails struct {
+	Id       int     `json:"id"`
+	OrderId  int     `json:"orderId"`
+	ProdId   int     `json:"prodId"`
+	Quantity int     `json:"quantity"`
+	Price    float64 `json:"price"`
+}
+
+type Orders struct {
+	Id           int     `json:"orderId"`
+	UserUUID     string  `json:"orderUserUUID"`
+	AddId        int     `json:"orderAddId"`
+	Date         string  `json:"orderDate"`
+	Total        float64 `json:"orderTotal"`
+	OrderDetails []OrdersDetails
+}

@@ -12,7 +12,9 @@ import (
 	authContext "github.com/ddessilvestri/ecommerce-go/auth/context"
 	"github.com/ddessilvestri/ecommerce-go/models"
 
+	"github.com/ddessilvestri/ecommerce-go/internal/address"
 	"github.com/ddessilvestri/ecommerce-go/internal/category"
+	"github.com/ddessilvestri/ecommerce-go/internal/order"
 	"github.com/ddessilvestri/ecommerce-go/internal/product"
 	"github.com/ddessilvestri/ecommerce-go/internal/stock"
 	"github.com/ddessilvestri/ecommerce-go/tools"
@@ -75,7 +77,9 @@ func CreateRouter(entity string, db *sql.DB) (EntityRouter, error) {
 	case "stock":
 		return stock.NewRouter(db), nil
 	case "address":
-		return product.NewRouter(db), nil
+		return address.NewRouter(db), nil
+	case "order":
+		return order.NewRouter(db), nil
 	default:
 		return nil, fmt.Errorf("entity '%s' not implemented", entity)
 	}
