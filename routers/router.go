@@ -74,6 +74,8 @@ func CreateRouter(entity string, db *sql.DB) (EntityRouter, error) {
 		return product.NewRouter(db), nil
 	case "stock":
 		return stock.NewRouter(db), nil
+	case "address":
+		return product.NewRouter(db), nil
 	default:
 		return nil, fmt.Errorf("entity '%s' not implemented", entity)
 	}
