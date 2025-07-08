@@ -13,6 +13,7 @@ import (
 	"github.com/ddessilvestri/ecommerce-go/models"
 
 	"github.com/ddessilvestri/ecommerce-go/internal/address"
+	adminusers "github.com/ddessilvestri/ecommerce-go/internal/admin/users"
 	"github.com/ddessilvestri/ecommerce-go/internal/category"
 	"github.com/ddessilvestri/ecommerce-go/internal/order"
 	"github.com/ddessilvestri/ecommerce-go/internal/product"
@@ -34,16 +35,16 @@ func Router(request events.APIGatewayV2HTTPRequest, urlPrefix string, db *sql.DB
 	method := request.RequestContext.HTTP.Method
 	header := request.Headers
 
-	firstSegment := getFirstPathSegment(path)
+	segments := getPathSegments(path)
 
-	entityRouter, err := CreateRouter(firstSegment, db)
+	entityRouter, err := CreateRouter(segments, db)
 	if err != nil {
 		return tools.CreateAPIResponse(http.StatusBadRequest, "Unable to route request: "+err.Error())
 	}
 
 	var authUser *models.AuthUser
 
-	if !(path == "product" && method == "GET") && !(path == "category" && method == "GET") {
+	if !(segments[0] == "product" && method == "GET") && !(segments[0] == "category" && method == "GET") {
 		authUser, err = auth.ExtractAuthUser(header)
 		if err != nil {
 			return tools.CreateAPIResponse(http.StatusUnauthorized, "Unable to authenticate user: "+err.Error())
@@ -68,8 +69,8 @@ func Router(request events.APIGatewayV2HTTPRequest, urlPrefix string, db *sql.DB
 }
 
 // CreateRouter maps entity names to their router implementations
-func CreateRouter(entity string, db *sql.DB) (EntityRouter, error) {
-	switch entity {
+func CreateRouter(segments []string, db *sql.DB) (EntityRouter, error) {
+	switch segments[0] {
 	case "category":
 		return category.NewRouter(db), nil
 	case "product":
@@ -80,17 +81,24 @@ func CreateRouter(entity string, db *sql.DB) (EntityRouter, error) {
 		return address.NewRouter(db), nil
 	case "order":
 		return order.NewRouter(db), nil
+	case "admin":
+		if segments[1] == "users" {
+			return adminusers.NewRouter(db), nil
+		}
+		return nil, fmt.Errorf("path '%s'/'%s' not implemented", segments[0], segments[1])
+	// case "user":
+	// 	return user.NewRouter(db), nil // Change API response from HTTP to With Context
 	default:
-		return nil, fmt.Errorf("entity '%s' not implemented", entity)
+		return nil, fmt.Errorf("entity '%s' not implemented", segments[0])
 	}
 }
 
 // Extract first part of path: "/category/1" -> "category"
-func getFirstPathSegment(path string) string {
+
+func getPathSegments(path string) []string {
 	path = strings.Trim(path, "/")
-	parts := strings.Split(path, "/")
-	if len(parts) > 0 {
-		return parts[0]
+	if path == "" {
+		return []string{}
 	}
-	return ""
+	return strings.Split(path, "/")
 }
