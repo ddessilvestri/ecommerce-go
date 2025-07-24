@@ -6,23 +6,20 @@ import (
 	"github.com/ddessilvestri/ecommerce-go/models"
 )
 
-type Repository interface {
-	Insert(o models.Orders) (int, error)
-	GetById(id int, userUUID string) (models.Orders, error)
-	GetByUserUUID(userUUID string) ([]models.Orders, error)
-	Update(o models.Orders) error
-	Delete(id int, userUUID string) error
-}
-
+// This struct acts like a "class" in Go.
+// It implements the Storage interface for SQL-based storage.
 type repositorySQL struct {
-	db *sql.DB
+	db *sql.DB // Dependency to the database connection
 }
 
-func NewSQLRepository(db *sql.DB) Repository {
+// Constructor-like function (Go does not support constructors like C# or Java).
+// By convention, we use New<Name>() to instantiate and return the interface type.
+func NewSQLRepository(db *sql.DB) Storage {
+	// We return a pointer to the struct instance
 	return &repositorySQL{db: db}
 }
 
-func (r *repositorySQL) Insert(o models.Orders) (int, error) {
+func (r *repositorySQL) Insert(o models.Orders) (int64, error) {
 	tx, err := r.db.Begin()
 	if err != nil {
 		return 0, err
@@ -61,16 +58,16 @@ func (r *repositorySQL) Insert(o models.Orders) (int, error) {
 		return 0, err
 	}
 
-	return int(orderID), nil
+	return int64(orderID), nil
 }
 
-func (r *repositorySQL) GetById(id int, userUUID string) (models.Orders, error) {
+func (r *repositorySQL) GetById(id int) (models.Orders, error) {
 	var o models.Orders
 	err := r.db.QueryRow(`
 		SELECT Order_Id, Order_UserUUID, Order_AddId, Order_Date, Order_Total
 		FROM orders
-		WHERE Order_Id = ? AND Order_UserUUID = ?`,
-		id, userUUID,
+		WHERE Order_Id = ?`,
+		id,
 	).Scan(&o.Id, &o.UserUUID, &o.AddId, &o.Date, &o.Total)
 	if err != nil {
 		return models.Orders{}, err
@@ -98,7 +95,7 @@ func (r *repositorySQL) GetById(id int, userUUID string) (models.Orders, error) 
 	return o, nil
 }
 
-func (r *repositorySQL) GetByUserUUID(userUUID string) ([]models.Orders, error) {
+func (r *repositorySQL) GetAllByUserUUID(page, limit int, fromDate, toDate string, userUUID string) ([]models.Orders, error) {
 	rows, err := r.db.Query(`
 		SELECT Order_Id, Order_UserUUID, Order_AddId, Order_Date, Order_Total
 		FROM orders

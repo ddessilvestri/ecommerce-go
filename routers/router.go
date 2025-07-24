@@ -18,6 +18,7 @@ import (
 	"github.com/ddessilvestri/ecommerce-go/internal/order"
 	"github.com/ddessilvestri/ecommerce-go/internal/product"
 	"github.com/ddessilvestri/ecommerce-go/internal/stock"
+	"github.com/ddessilvestri/ecommerce-go/internal/user"
 	"github.com/ddessilvestri/ecommerce-go/tools"
 )
 
@@ -86,8 +87,8 @@ func CreateRouter(segments []string, db *sql.DB) (EntityRouter, error) {
 			return adminusers.NewRouter(db), nil
 		}
 		return nil, fmt.Errorf("path '%s'/'%s' not implemented", segments[0], segments[1])
-	// case "user":
-	// 	return user.NewRouter(db), nil // Change API response from HTTP to With Context
+	case "user":
+		return user.NewRouter(db), nil // Change API response from HTTP to With Context
 	default:
 		return nil, fmt.Errorf("entity '%s' not implemented", segments[0])
 	}

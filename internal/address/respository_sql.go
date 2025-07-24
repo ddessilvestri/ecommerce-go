@@ -81,11 +81,9 @@ func (r *repositorySQL) Exists(id int) bool {
 
 	var exists int
 	err = r.db.QueryRow(query, args...).Scan(&exists)
-	if err != nil {
-		return false
-	}
 
-	return true
+	return err == nil
+
 }
 
 func (r *repositorySQL) Update(a models.Address) error {

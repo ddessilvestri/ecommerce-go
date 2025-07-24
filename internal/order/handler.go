@@ -101,6 +101,7 @@ func (h *Handler) Get(requestWithContext models.RequestWithContext) *events.APIG
 		return tools.CreateAPIResponse(http.StatusUnauthorized, "User not found in context: "+err.Error())
 	}
 
+	// === 1. Get By Id ===
 	idStr := requestWithContext.RequestPathParameters()["id"]
 	if idStr != "" {
 		id, err := strconv.Atoi(idStr)
@@ -108,7 +109,7 @@ func (h *Handler) Get(requestWithContext models.RequestWithContext) *events.APIG
 			return tools.CreateAPIResponse(http.StatusBadRequest, "Invalid OrderId: "+err.Error())
 		}
 
-		order, err := h.service.GetById(id, userUUID)
+		order, err := h.service.GetById(id)
 		if err != nil {
 			return tools.CreateAPIResponse(http.StatusNotFound, "Order not found: "+err.Error())
 		}
@@ -121,11 +122,20 @@ func (h *Handler) Get(requestWithContext models.RequestWithContext) *events.APIG
 		return tools.CreateAPIResponse(http.StatusOK, string(body))
 	}
 
-	orders, err := h.service.GetByUser(userUUID)
+	// === 2. Default: Get all paginated ===
+
+	query := requestWithContext.RequestQueryStringParameters()
+	page, fromDate, toDate, err := tools.ParseOrdersPaginationAndSorting(query)
 	if err != nil {
-		return tools.CreateAPIResponse(http.StatusInternalServerError, "Error fetching orders: "+err.Error())
+		return tools.CreateAPIResponse(http.StatusBadRequest, err.Error())
 	}
 
+	limit := 10 // Default limit
+
+	orders, err := h.service.GetAllByUserUUID(page, limit, fromDate, toDate, userUUID)
+	if err != nil {
+		return tools.CreateAPIResponse(http.StatusInternalServerError, err.Error())
+	}
 	body, err := json.Marshal(orders)
 	if err != nil {
 		return tools.CreateAPIResponse(http.StatusInternalServerError, "Error converting to JSON: "+err.Error())
