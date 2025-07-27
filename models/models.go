@@ -33,3 +33,41 @@ type Product struct {
 	Search      string  `json:"search,omitempty"`
 	CategPath   string  `json:"categPath,omitempty"`
 }
+
+type Address struct {
+	Id         int    `json:"id"`
+	Title      string `json:"title"`
+	Name       string `json:"name"`
+	Address    string `json:"address"`
+	City       string `json:"city"`
+	State      string `json:"state"`
+	PostalCode string `json:"postalCode"`
+	Phone      string `json:"phone"`
+}
+
+type OrdersDetails struct {
+	Id       int     `json:"id"`
+	OrderId  int     `json:"orderId"`
+	ProdId   int     `json:"prodId"`
+	Quantity int     `json:"quantity"`
+	Price    float64 `json:"price"`
+}
+
+type Orders struct {
+	Id           int     `json:"orderId"`
+	UserUUID     string  `json:"orderUserUUID"`
+	AddId        int     `json:"orderAddId"`
+	Date         string  `json:"orderDate"`
+	Total        float64 `json:"orderTotal"`
+	OrderDetails []OrdersDetails
+}
+
+type User struct {
+	UUID      string `json:"uuid"`
+	Email     string `json:"email"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	Status    int    `json:"status"`
+	DateAdd   string `json:"dateAdd"`
+	DateUpg   string `json:"dateUpg"`
+}

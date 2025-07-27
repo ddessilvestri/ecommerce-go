@@ -15,10 +15,11 @@ echo "📦 Packaging into function.zip..."
 rm -f function.zip
 zip function.zip bootstrap
 
-echo "☁️ Deploying to AWS Lambda: $LAMBDA_FUNCTION_NAME..."
-aws lambda update-function-code \
-  --function-name "$LAMBDA_FUNCTION_NAME" \
-  --zip-file fileb://function.zip
+# echo "☁️ Deploying to AWS Lambda: $LAMBDA_FUNCTION_NAME..."
+# aws lambda update-function-code \
+#   --function-name "$LAMBDA_FUNCTION_NAME" \
+#   --zip-file fileb://function.zip \
+#   --region us-east-1
 
 if [ $? -eq 0 ]; then
   echo "✅ Deployment successful!"

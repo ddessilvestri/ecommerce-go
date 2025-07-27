@@ -1,11 +1,13 @@
-// routers/entity_router.go
 package routers
 
-import "github.com/aws/aws-lambda-go/events"
+import (
+	"github.com/aws/aws-lambda-go/events"
+	"github.com/ddessilvestri/ecommerce-go/models"
+)
 
 type EntityRouter interface {
-	Get(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse
-	Post(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse
-	Put(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse
-	Delete(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse
+	Get(requestWithContext models.RequestWithContext) *events.APIGatewayProxyResponse
+	Post(requestWithContext models.RequestWithContext) *events.APIGatewayProxyResponse
+	Put(requestWithContext models.RequestWithContext) *events.APIGatewayProxyResponse
+	Delete(requestWithContext models.RequestWithContext) *events.APIGatewayProxyResponse
 }

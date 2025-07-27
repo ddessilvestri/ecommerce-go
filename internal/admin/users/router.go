@@ -1,44 +1,37 @@
-package category
+package adminusers
 
 import (
 	"database/sql"
+	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/ddessilvestri/ecommerce-go/models"
+	"github.com/ddessilvestri/ecommerce-go/tools"
 )
 
-// Router struct contains all dependencies
 type Router struct {
 	handler *Handler
 }
 
-// NewCategoryRouter sets up the repository, service, and handler
 func NewRouter(db *sql.DB) *Router {
 	repo := NewSQLRepository(db)
-	service := NewCategoryService(repo)
-	handler := NewCategoryHandler(service)
+	service := NewService(repo)
+	handler := NewHandler(service)
 	return &Router{handler: handler}
 }
 
-// Implements the EntityRouter interface
-
 func (r *Router) Post(requestWithContext models.RequestWithContext) *events.APIGatewayProxyResponse {
-	resp, _ := r.handler.Post(requestWithContext)
-	return resp
+	return tools.CreateAPIResponse(http.StatusMethodNotAllowed, "not implemented")
 }
 
-// Future implementations (stubs for now)
 func (r *Router) Get(requestWithContext models.RequestWithContext) *events.APIGatewayProxyResponse {
-	resp, _ := r.handler.Get(requestWithContext)
-	return resp
+	return r.handler.Get(requestWithContext)
 }
 
 func (r *Router) Put(requestWithContext models.RequestWithContext) *events.APIGatewayProxyResponse {
-	resp, _ := r.handler.Put(requestWithContext)
-	return resp
+	return tools.CreateAPIResponse(http.StatusMethodNotAllowed, "not implemented")
 }
 
 func (r *Router) Delete(requestWithContext models.RequestWithContext) *events.APIGatewayProxyResponse {
-	resp, _ := r.handler.Delete(requestWithContext)
-	return resp
+	return tools.CreateAPIResponse(http.StatusMethodNotAllowed, "not implemented")
 }

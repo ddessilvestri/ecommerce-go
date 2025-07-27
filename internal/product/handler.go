@@ -22,10 +22,10 @@ func NewHandler(service *Service) *Handler {
 	return &Handler{service: service}
 }
 
-func (h *Handler) Post(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse {
+func (h *Handler) Post(requestWithContext models.RequestWithContext) *events.APIGatewayProxyResponse {
 
 	var c models.Product
-	body := request.Body
+	body := requestWithContext.RequestBody()
 
 	err := json.Unmarshal([]byte(body), &c)
 	if err != nil {
@@ -40,17 +40,17 @@ func (h *Handler) Post(request events.APIGatewayV2HTTPRequest) *events.APIGatewa
 	return tools.CreateAPIResponse(http.StatusOK, fmt.Sprintf(`{"ProductID": %d}`, id))
 }
 
-func (h *Handler) Put(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse {
+func (h *Handler) Put(requestWithContext models.RequestWithContext) *events.APIGatewayProxyResponse {
 
 	var c models.Product
-	body := request.Body
+	body := requestWithContext.RequestBody()
 
 	err := json.Unmarshal([]byte(body), &c)
 	if err != nil {
 		return tools.CreateAPIResponse(http.StatusBadRequest, "Invalid JSON body: "+err.Error())
 	}
 
-	id := request.PathParameters["id"]
+	id := requestWithContext.RequestPathParameters()["id"]
 	idn, err := strconv.Atoi(id)
 	if err != nil {
 		return tools.CreateAPIResponse(http.StatusBadRequest, "Invalid ProductId: "+err.Error())
@@ -67,9 +67,9 @@ func (h *Handler) Put(request events.APIGatewayV2HTTPRequest) *events.APIGateway
 }
 
 // Post handles the HTTP DELETE request to delete a category
-func (h *Handler) Delete(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse {
+func (h *Handler) Delete(requestWithContext models.RequestWithContext) *events.APIGatewayProxyResponse {
 
-	id := request.PathParameters["id"]
+	id := requestWithContext.RequestPathParameters()["id"]
 	idn, err := strconv.Atoi(id)
 	if err != nil {
 		return tools.CreateAPIResponse(http.StatusBadRequest, "Invalid ProductId: "+err.Error())
@@ -83,8 +83,8 @@ func (h *Handler) Delete(request events.APIGatewayV2HTTPRequest) *events.APIGate
 
 }
 
-func (h *Handler) Get(request events.APIGatewayV2HTTPRequest) *events.APIGatewayProxyResponse {
-	query := request.QueryStringParameters
+func (h *Handler) Get(requestWithContext models.RequestWithContext) *events.APIGatewayProxyResponse {
+	query := requestWithContext.RequestQueryStringParameters()
 
 	// === 1. Lookup by ID ===
 	if idStr := query["id"]; idStr != "" {

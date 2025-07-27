@@ -72,3 +72,28 @@ func ParsePaginationAndSorting(query map[string]string) (page, limit int, sortBy
 
 	return
 }
+
+func ParseOrdersPaginationAndSorting(query map[string]string) (page int, from_date, to_date string, err error) {
+	page = 1
+	from_date = "1970-01-01"
+	to_date = time.Now().Format("2006-01-02")
+
+	if val := strings.TrimSpace(query["page"]); val != "" {
+		p, err := strconv.Atoi(val)
+		if err != nil || p < 1 {
+			return 0, from_date, to_date, fmt.Errorf("invalid 'page' parameter")
+		}
+		page = p
+	}
+
+	if val := strings.TrimSpace(query["from_date"]); val != "" {
+
+		from_date = val
+	}
+
+	if val := strings.TrimSpace(query["to_date"]); val != "" {
+		to_date = val
+	}
+
+	return
+}

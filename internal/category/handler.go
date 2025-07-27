@@ -22,9 +22,9 @@ func NewCategoryHandler(service *Service) *Handler {
 }
 
 // Post handles the HTTP POST request to create a category
-func (h *Handler) Post(request events.APIGatewayV2HTTPRequest) (*events.APIGatewayProxyResponse, error) {
+func (h *Handler) Post(requestWithContext models.RequestWithContext) (*events.APIGatewayProxyResponse, error) {
 	var c models.Category
-	body := request.Body
+	body := requestWithContext.RequestBody()
 
 	// 1. Try to parse the incoming JSON
 	err := json.Unmarshal([]byte(body), &c)
@@ -43,9 +43,9 @@ func (h *Handler) Post(request events.APIGatewayV2HTTPRequest) (*events.APIGatew
 }
 
 // Post handles the HTTP POST request to create a category
-func (h *Handler) Put(request events.APIGatewayV2HTTPRequest) (*events.APIGatewayProxyResponse, error) {
+func (h *Handler) Put(requestWithContext models.RequestWithContext) (*events.APIGatewayProxyResponse, error) {
 	var c models.Category
-	body := request.Body
+	body := requestWithContext.RequestBody()
 
 	// 1. Try to parse the incoming JSON
 	err := json.Unmarshal([]byte(body), &c)
@@ -54,7 +54,7 @@ func (h *Handler) Put(request events.APIGatewayV2HTTPRequest) (*events.APIGatewa
 	}
 
 	// 2. Try to parse the incoming id
-	id := request.PathParameters["id"]
+	id := requestWithContext.RequestPathParameters()["id"]
 	idn, err := strconv.Atoi(id)
 	if err != nil {
 		return tools.CreateAPIResponse(http.StatusBadRequest, "Invalid CategoryId: "+err.Error()), nil
@@ -73,10 +73,10 @@ func (h *Handler) Put(request events.APIGatewayV2HTTPRequest) (*events.APIGatewa
 }
 
 // Post handles the HTTP DELETE request to delete a category
-func (h *Handler) Delete(request events.APIGatewayV2HTTPRequest) (*events.APIGatewayProxyResponse, error) {
+func (h *Handler) Delete(requestWithContext models.RequestWithContext) (*events.APIGatewayProxyResponse, error) {
 
 	// 1. Try to parse the incoming id
-	id := request.PathParameters["id"]
+	id := requestWithContext.RequestPathParameters()["id"]
 	idn, err := strconv.Atoi(id)
 	if err != nil {
 		return tools.CreateAPIResponse(http.StatusBadRequest, "Invalid CategoryId: "+err.Error()), nil
@@ -93,11 +93,11 @@ func (h *Handler) Delete(request events.APIGatewayV2HTTPRequest) (*events.APIGat
 }
 
 // Post handles the HTTP DELETE request to delete a category
-func (h *Handler) Get(request events.APIGatewayV2HTTPRequest) (*events.APIGatewayProxyResponse, error) {
+func (h *Handler) Get(requestWithContext models.RequestWithContext) (*events.APIGatewayProxyResponse, error) {
 
 	// 1 - First check if id is a query string parameter
-	idstr := request.QueryStringParameters["id"]
-	slug := request.QueryStringParameters["slug"]
+	idstr := requestWithContext.RequestQueryStringParameters()["id"]
+	slug := requestWithContext.RequestQueryStringParameters()["slug"]
 	if idstr != "" {
 
 		// 1. Try to parse the incoming idstr
