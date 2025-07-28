@@ -95,7 +95,6 @@ func (r *repositorySQL) Update(a models.Address) error {
 		"Add_State",
 		"Add_PostalCode",
 		"Add_Phone",
-		"Add_Updated", // campo para fecha/hora de actualización
 	}
 
 	values := []interface{}{
@@ -106,7 +105,6 @@ func (r *repositorySQL) Update(a models.Address) error {
 		a.State,
 		a.PostalCode,
 		a.Phone,
-		squirrel.Expr("NOW()"),
 	}
 
 	// Armamos el builder
@@ -174,15 +172,17 @@ func (r *repositorySQL) GetAllByUserUUID(userUUID string) ([]models.Address, err
 	var addresses []models.Address
 	for rows.Next() {
 		var a models.Address
+		var userID string
 		err = rows.Scan(
 			&a.Id,
-			&a.Name,
-			&a.Title,
+			&userID, // Add_UserID - we don't need this in the model
 			&a.Address,
 			&a.City,
 			&a.State,
 			&a.PostalCode,
 			&a.Phone,
+			&a.Title,
+			&a.Name,
 		)
 		if err != nil {
 			return nil, err
@@ -191,4 +191,38 @@ func (r *repositorySQL) GetAllByUserUUID(userUUID string) ([]models.Address, err
 	}
 
 	return addresses, nil
+}
+
+func (r *repositorySQL) GetById(id int) (models.Address, error) {
+	query, args, err := squirrel.
+		Select("*").
+		From("addresses").
+		Where(squirrel.Eq{"Add_Id": id}).
+		Limit(1).
+		PlaceholderFormat(squirrel.Question).
+		ToSql()
+
+	if err != nil {
+		return models.Address{}, err
+	}
+
+	var a models.Address
+	var userID string
+	err = r.db.QueryRow(query, args...).Scan(
+		&a.Id,
+		&userID, // Add_UserID - we don't need this in the model
+		&a.Address,
+		&a.City,
+		&a.State,
+		&a.PostalCode,
+		&a.Phone,
+		&a.Title,
+		&a.Name,
+	)
+
+	if err != nil {
+		return models.Address{}, err
+	}
+
+	return a, nil
 }

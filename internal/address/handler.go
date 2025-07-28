@@ -18,7 +18,7 @@ type Handler struct {
 	service *Service
 }
 
-// NewCategoryHandler creates a new handler with injected service
+// NewHandler creates a new handler with injected service
 func NewHandler(service *Service) *Handler {
 	return &Handler{service: service}
 }
@@ -34,7 +34,7 @@ func (h *Handler) Post(requestWithContext models.RequestWithContext) *events.API
 	}
 	userUUID, err := authContext.UserUUIDFromContext(requestWithContext.Context())
 	if err != nil {
-		return tools.CreateAPIResponse(http.StatusBadRequest, "Usert Not found In Context: "+err.Error())
+		return tools.CreateAPIResponse(http.StatusBadRequest, "User Not found In Context: "+err.Error())
 	}
 
 	id, err := h.service.Create(a, userUUID)
@@ -42,7 +42,7 @@ func (h *Handler) Post(requestWithContext models.RequestWithContext) *events.API
 		return tools.CreateAPIResponse(http.StatusBadRequest, "Error : "+err.Error())
 	}
 
-	return tools.CreateAPIResponse(http.StatusOK, fmt.Sprintf(`{"ProductID": %d}`, id))
+	return tools.CreateAPIResponse(http.StatusOK, fmt.Sprintf(`{"AddressID": %d}`, id))
 }
 
 func (h *Handler) Put(requestWithContext models.RequestWithContext) *events.APIGatewayProxyResponse {
@@ -67,10 +67,10 @@ func (h *Handler) Put(requestWithContext models.RequestWithContext) *events.APIG
 		return tools.CreateAPIResponse(http.StatusBadRequest, "Error : "+err.Error())
 	}
 
-	return tools.CreateAPIResponse(http.StatusOK, fmt.Sprintf(`{"Updated ProductId": %d}`, idn))
+	return tools.CreateAPIResponse(http.StatusOK, fmt.Sprintf(`{"Updated AddressId": %d}`, idn))
 }
 
-// Post handles the HTTP DELETE request to delete a category
+// Delete handles the HTTP DELETE request to delete an address
 func (h *Handler) Delete(requestWithContext models.RequestWithContext) *events.APIGatewayProxyResponse {
 
 	id := requestWithContext.RequestPathParameters()["id"]
@@ -88,9 +88,29 @@ func (h *Handler) Delete(requestWithContext models.RequestWithContext) *events.A
 }
 
 func (h *Handler) Get(requestWithContext models.RequestWithContext) *events.APIGatewayProxyResponse {
+	query := requestWithContext.RequestQueryStringParameters()
+
+	// === 1. Lookup by ID ===
+	if idStr := query["id"]; idStr != "" {
+		id, err := strconv.Atoi(idStr)
+		if err != nil || id <= 0 {
+			return tools.CreateAPIResponse(http.StatusBadRequest, "Invalid 'id' parameter")
+		}
+		address, err := h.service.GetById(id)
+		if err != nil {
+			return tools.CreateAPIResponse(http.StatusNotFound, "Address not found: "+err.Error())
+		}
+		body, err := json.Marshal(address)
+		if err != nil {
+			return tools.CreateAPIResponse(http.StatusInternalServerError, "Error converting to JSON: "+err.Error())
+		}
+		return tools.CreateAPIResponse(http.StatusOK, string(body))
+	}
+
+	// === 2. Default: Get all addresses for user ===
 	userUUID, err := authContext.UserUUIDFromContext(requestWithContext.Context())
 	if err != nil {
-		return tools.CreateAPIResponse(http.StatusBadRequest, "Usert Not found In Context: "+err.Error())
+		return tools.CreateAPIResponse(http.StatusBadRequest, "User Not found In Context: "+err.Error())
 	}
 
 	addresses, err := h.service.GetAllByUserUUID(userUUID)

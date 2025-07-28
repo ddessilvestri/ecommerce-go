@@ -6,7 +6,7 @@ import (
 	"github.com/ddessilvestri/ecommerce-go/models"
 )
 
-// Service provides methods for business logic related to category.
+// Service provides methods for business logic related to address.
 type Service struct {
 	repo Storage // This is the interface, so it's decoupled from repositorySQL
 }
@@ -80,6 +80,13 @@ func (s *Service) Delete(id int) error {
 	}
 	return s.repo.Delete(id)
 
+}
+
+func (s *Service) GetById(id int) (models.Address, error) {
+	if id < 1 {
+		return models.Address{}, ErrInvalidId
+	}
+	return s.repo.GetById(id)
 }
 
 func (s *Service) GetAllByUserUUID(userUUID string) ([]models.Address, error) {
