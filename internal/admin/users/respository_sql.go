@@ -69,9 +69,18 @@ func (r *repositorySQL) GetAll(offset, limit int, sortBy, order string) ([]model
 	var users []models.User
 	for rows.Next() {
 		var u models.User
-		if err := rows.Scan(&u.UUID, &u.Email, &u.FirstName, &u.LastName, &u.Status, &u.DateAdd, &u.DateUpg); err != nil {
+		var firstName, lastName sql.NullString
+		var dateUpg sql.NullString
+
+		if err := rows.Scan(&u.UUID, &u.Email, &firstName, &lastName, &u.Status, &u.DateAdd, &dateUpg); err != nil {
 			return nil, err
 		}
+
+		// Convert NULL values to empty strings
+		u.FirstName = firstName.String
+		u.LastName = lastName.String
+		u.DateUpg = dateUpg.String
+
 		users = append(users, u)
 	}
 

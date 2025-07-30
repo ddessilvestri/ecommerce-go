@@ -2,6 +2,7 @@ package order
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/ddessilvestri/ecommerce-go/models"
 )
@@ -15,6 +16,8 @@ func NewService(repo Storage) *Service {
 }
 
 func (s *Service) Create(o models.Orders) (int64, error) {
+	fmt.Printf("DEBUG: Received order with Total: %v (type: %T)\n", o.Total, o.Total)
+
 	if o.Total <= 0 {
 		return 0, errors.New("order total must be > 0")
 	}
@@ -48,6 +51,20 @@ func (s *Service) GetAllByUserUUID(page, limit int, fromDate, toDate string, use
 
 func (s *Service) GetById(id int) (models.Orders, error) {
 	return s.repo.GetById(id)
+}
+
+func (s *Service) GetByIdWithUserValidation(id int, userUUID string) (models.Orders, error) {
+	order, err := s.repo.GetById(id)
+	if err != nil {
+		return models.Orders{}, err
+	}
+
+	// Validate that the order belongs to the authenticated user
+	if order.UserUUID != userUUID {
+		return models.Orders{}, errors.New("order not found or access denied")
+	}
+
+	return order, nil
 }
 
 func (s *Service) Update(o models.Orders) error {

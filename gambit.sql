@@ -118,7 +118,51 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 
 
+-- // Add Data manually
+
 -- INSERT INTO addresses 
 -- (Add_UserID, Add_Address, Add_City, Add_State, Add_PostalCode, Add_Phone, Add_Title, Add_Name)
 -- VALUES 
 -- ('e458c498-f001-7095-9f5e-f64535cba361', '124 Main Street', 'New York', 'NY', '10001', '+1-555-123-4567', 'Home', 'John Doe');
+
+
+-- First, let's add some sample products (if they don't exist)
+-- INSERT INTO products 
+-- (Prod_Title, Prod_Description, Prod_Price, Prod_Stock, Prod_CategoryId, Prod_Path) 
+-- VALUES 
+-- ('iPhone 15 Pro', 'Latest iPhone with advanced camera system', 999.99, 50, 1, 'iphone-15-pro'),
+-- ('MacBook Air M2', 'Lightweight laptop with M2 chip', 1199.99, 30, 1, 'macbook-air-m2'),
+-- ('AirPods Pro', 'Wireless earbuds with noise cancellation', 249.99, 100, 1, 'airpods-pro'),
+-- ('iPad Air', 'Versatile tablet for work and creativity', 599.99, 25, 1, 'ipad-air');
+
+-- -- Insert address first
+-- INSERT INTO addresses 
+-- (Add_UserID, Add_Address, Add_City, Add_State, Add_PostalCode, Add_Phone, Add_Title, Add_Name) 
+-- VALUES 
+-- ('e458c498-f001-7095-9f5e-f64535cba361', '124 Main Street', 'New York', 'NY', '10001', '+1-555-123-4567', 'Home', 'John Doe');
+
+-- -- Insert first order
+-- INSERT INTO orders 
+-- (Order_UserUUID, Order_AddId, Order_Date, Order_Total) 
+-- VALUES 
+-- ('e458c498-f001-7095-9f5e-f64535cba361', 1, NOW(), 1449.98);
+
+-- -- Insert second order
+-- INSERT INTO orders 
+-- (Order_UserUUID, Order_AddId, Order_Date, Order_Total) 
+-- VALUES 
+-- ('e458c498-f001-7095-9f5e-f64535cba361', 1, NOW(), 1799.98);
+
+-- -- Insert order details for first order
+-- INSERT INTO orders_detail 
+-- (OD_OrderId, OD_ProdId, OD_Quantity, OD_Price) 
+-- VALUES 
+-- (1, 1, 1, 999.99),
+-- (1, 3, 1, 249.99);
+
+-- -- Insert order details for second order
+-- INSERT INTO orders_detail 
+-- (OD_OrderId, OD_ProdId, OD_Quantity, OD_Price) 
+-- VALUES 
+-- (2, 2, 1, 1199.99),
+-- (2, 4, 1, 599.99);

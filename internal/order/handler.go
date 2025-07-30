@@ -101,15 +101,15 @@ func (h *Handler) Get(requestWithContext models.RequestWithContext) *events.APIG
 		return tools.CreateAPIResponse(http.StatusUnauthorized, "User not found in context: "+err.Error())
 	}
 
-	// === 1. Get By Id ===
-	idStr := requestWithContext.RequestPathParameters()["id"]
-	if idStr != "" {
-		id, err := strconv.Atoi(idStr)
+	// === 1. Get Order By Id ===
+	orderIdStr := requestWithContext.RequestPathParameters()["id"]
+	if orderIdStr != "" {
+		id, err := strconv.Atoi(orderIdStr)
 		if err != nil {
 			return tools.CreateAPIResponse(http.StatusBadRequest, "Invalid OrderId: "+err.Error())
 		}
 
-		order, err := h.service.GetById(id)
+		order, err := h.service.GetByIdWithUserValidation(id, userUUID)
 		if err != nil {
 			return tools.CreateAPIResponse(http.StatusNotFound, "Order not found: "+err.Error())
 		}
@@ -122,7 +122,7 @@ func (h *Handler) Get(requestWithContext models.RequestWithContext) *events.APIG
 		return tools.CreateAPIResponse(http.StatusOK, string(body))
 	}
 
-	// === 2. Default: Get all paginated ===
+	// === 2. Default: Get all orders paginated ===
 
 	query := requestWithContext.RequestQueryStringParameters()
 	page, fromDate, toDate, err := tools.ParseOrdersPaginationAndSorting(query)

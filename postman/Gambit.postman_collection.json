@@ -113,7 +113,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{main-api-url}}/gambit/category",
+							"raw": "{{main-api-url}}/gambit/category?id=3&slug=ls",
 							"host": [
 								"{{main-api-url}}"
 							],
@@ -124,13 +124,11 @@
 							"query": [
 								{
 									"key": "id",
-									"value": "3",
-									"disabled": true
+									"value": "3"
 								},
 								{
 									"key": "slug",
-									"value": "ls",
-									"disabled": true
+									"value": "ls"
 								}
 							]
 						}
@@ -470,6 +468,235 @@
 			]
 		},
 		{
+			"name": "User",
+			"item": [
+				{
+					"name": "UpdateUser",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"David Updated\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{main-api-url}}/gambit/user",
+							"host": [
+								"{{main-api-url}}"
+							],
+							"path": [
+								"gambit",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllByUserUUID (signed by token)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{main-api-url}}/gambit/user",
+							"host": [
+								"{{main-api-url}}"
+							],
+							"path": [
+								"gambit",
+								"user"
+							],
+							"query": [
+								{
+									"key": "slug",
+									"value": "ls",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Order",
+			"item": [
+				{
+					"name": "AddOrder",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"orderAddId\": 2,\r\n    \"orderTotal\": 90.60,\r\n    \"orderDetails\": [\r\n        {\r\n            \"prodId\": 1,\r\n            \"quantity\": 1,\r\n            \"price\": 90.60\r\n        },\r\n        {\r\n            \"prodId\": 2,\r\n            \"quantity\": 1,\r\n            \"price\": 90.60\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{main-api-url}}/gambit/order",
+							"host": [
+								"{{main-api-url}}"
+							],
+							"path": [
+								"gambit",
+								"order"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateOrder",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id\": 2,\r\n  \"title\": \"Home Updated\",\r\n  \"name\": \"John Doe Updated\",\r\n  \"address\": \"124 Main Street Updated\",\r\n  \"city\": \"New York\",\r\n  \"state\": \"NY\",\r\n  \"postalCode\": \"10001\",\r\n  \"phone\": \"+1-555-123-4567\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{main-api-url}}/gambit/order/2",
+							"host": [
+								"{{main-api-url}}"
+							],
+							"path": [
+								"gambit",
+								"order",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteOrder",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{main-api-url}}/gambit/order/1",
+							"host": [
+								"{{main-api-url}}"
+							],
+							"path": [
+								"gambit",
+								"order",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetOrderById",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{main-api-url}}/gambit/order/4",
+							"host": [
+								"{{main-api-url}}"
+							],
+							"path": [
+								"gambit",
+								"order",
+								"4"
+							],
+							"query": [
+								{
+									"key": "slug",
+									"value": "ls",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllByUserUUID (signed by token)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{main-api-url}}/gambit/order",
+							"host": [
+								"{{main-api-url}}"
+							],
+							"path": [
+								"gambit",
+								"order"
+							],
+							"query": [
+								{
+									"key": "slug",
+									"value": "ls",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Stock",
 			"item": [
 				{
@@ -507,6 +734,110 @@
 									"key": "del",
 									"value": null,
 									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "GetAll",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"delta\":50\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{main-api-url}}/gambit/admin/users",
+							"host": [
+								"{{main-api-url}}"
+							],
+							"path": [
+								"gambit",
+								"admin",
+								"users"
+							],
+							"query": [
+								{
+									"key": "del",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllQueryParameter",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"delta\":50\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{main-api-url}}/gambit/admin/users?page=1&limit=2&sortBy=created_at&order=asc",
+							"host": [
+								"{{main-api-url}}"
+							],
+							"path": [
+								"gambit",
+								"admin",
+								"users"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "2"
+								},
+								{
+									"key": "sortBy",
+									"value": "created_at"
+								},
+								{
+									"key": "order",
+									"value": "asc"
 								}
 							]
 						}

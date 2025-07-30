@@ -43,8 +43,8 @@ func (r *repositorySQL) Insert(o models.Orders) (int64, error) {
 
 	for _, d := range o.OrderDetails {
 		_, err := tx.Exec(`
-			INSERT INTO orders_details (OrderId, ProdId, Quantity, Price)
-			VALUES (?, ?, ?, ?)`,
+					INSERT INTO orders_detail (OD_OrderId, OD_ProdId, OD_Quantity, OD_Price)
+		VALUES (?, ?, ?, ?)`,
 			orderID, d.ProdId, d.Quantity, d.Price,
 		)
 		if err != nil {
@@ -74,9 +74,9 @@ func (r *repositorySQL) GetById(id int) (models.Orders, error) {
 	}
 
 	rows, err := r.db.Query(`
-		SELECT Id, OrderId, ProdId, Quantity, Price
-		FROM orders_details
-		WHERE OrderId = ?`,
+		SELECT OD_Id, OD_OrderId, OD_ProdId, OD_Quantity, OD_Price
+		FROM orders_detail
+		WHERE OD_OrderId = ?`,
 		id,
 	)
 	if err != nil {
@@ -118,9 +118,9 @@ func (r *repositorySQL) GetAllByUserUUID(page, limit int, fromDate, toDate strin
 		}
 
 		detailsRows, err := r.db.Query(`
-			SELECT Id, OrderId, ProdId, Quantity, Price
-			FROM orders_details
-			WHERE OrderId = ?`,
+					SELECT OD_Id, OD_OrderId, OD_ProdId, OD_Quantity, OD_Price
+		FROM orders_detail
+		WHERE OD_OrderId = ?`,
 			o.Id,
 		)
 		if err != nil {
@@ -160,8 +160,8 @@ func (r *repositorySQL) Update(o models.Orders) error {
 	}
 
 	_, err = tx.Exec(`
-		DELETE FROM orders_details
-		WHERE OrderId = ?`,
+		DELETE FROM orders_detail
+		WHERE OD_OrderId = ?`,
 		o.Id,
 	)
 	if err != nil {
@@ -171,8 +171,8 @@ func (r *repositorySQL) Update(o models.Orders) error {
 
 	for _, d := range o.OrderDetails {
 		_, err := tx.Exec(`
-			INSERT INTO orders_details (OrderId, ProdId, Quantity, Price)
-			VALUES (?, ?, ?, ?)`,
+					INSERT INTO orders_detail (OD_OrderId, OD_ProdId, OD_Quantity, OD_Price)
+		VALUES (?, ?, ?, ?)`,
 			o.Id, d.ProdId, d.Quantity, d.Price,
 		)
 		if err != nil {
@@ -191,8 +191,8 @@ func (r *repositorySQL) Delete(id int, userUUID string) error {
 	}
 
 	_, err = tx.Exec(`
-		DELETE FROM orders_details
-		WHERE OrderId = ?`,
+		DELETE FROM orders_detail
+		WHERE OD_OrderId = ?`,
 		id,
 	)
 	if err != nil {
